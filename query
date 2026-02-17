@@ -1,0 +1,27 @@
+WITH base AS (
+  SELECT
+    t.transcript_available_at,
+    CASE
+      WHEN mr.end_time LIKE '%T%' THEN mr.end_time::timestamp
+      WHEN mr.event_date ~ '^\d{4}-\d{2}-\d{2}$' AND mr.end_time ~ '^\d{2}:\d{2}$'
+        THEN to_timestamp(mr.event_date || ' ' || mr.end_time, 'YYYY-MM-DD HH24:MI')
+      WHEN mr.event_date ~ '^\d{4}-\d{2}-\d{2}$' AND mr.end_time ~ '^\d{2}:\d{2}:\d{2}$'
+        THEN to_timestamp(mr.event_date || ' ' || mr.end_time, 'YYYY-MM-DD HH24:MI:SS')
+      ELSE NULL
+    END AS meeting_end_ts
+  FROM transcripts t
+  JOIN meeting_records mr ON mr.meeting_id = t.meeting_id
+  WHERE mr.environment='prod'
+    AND mr.region='ANZ'
+    AND mr.end_time IS NOT NULL
+    AND t.transcript_available_at IS NOT NULL
+)
+SELECT
+  ROUND(EXTRACT(EPOCH FROM (transcript_available_at - meeting_end_ts))/60.0) AS delay_min_bucket,
+  COUNT(*) AS cnt
+FROM base
+WHERE meeting_end_ts IS NOT NULL
+  AND meeting_end_ts >= NOW() - INTERVAL '7 days'
+GROUP BY 1
+ORDER BY cnt DESC
+LIMIT 15;
