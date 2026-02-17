@@ -1,34 +1,18 @@
+WITH base AS (
+  SELECT
+    (to_timestamp(t.meeting_date || ' ' || t.end_time, 'YYYY-MM-DD HH24:MI')
+        AT TIME ZONE 'Australia/Sydney')            AS meeting_end_utc,
+    (t.transcript_available_at AT TIME ZONE 'UTC') AS transcript_available_utc
+  FROM transcripts t
+  WHERE t.meeting_date IS NOT NULL
+    AND t.end_time IS NOT NULL
+    AND t.transcript_available_at IS NOT NULL
+)
 SELECT
-  mr.meeting_id,
-  mr.event_date,
-  mr.end_time,
-  t.meeting_date,
-  t.start_time,
-  t.end_time,
-  t.transcript_available_at
-FROM transcripts t
-JOIN meeting_records mr ON mr.meeting_id = t.meeting_id
-WHERE mr.environment='prod'
-  AND mr.region='ANZ'
-LIMIT 1;
-
-
-
-SELECT
-  ROUND(EXTRACT(EPOCH FROM 
-    (t.transcript_available_at - 
-     to_timestamp(t.meeting_date || ' ' || t.end_time, 'YYYY-MM-DD HH24:MI:SS')
-    )
-  )/60.0) AS delay_min_bucket,
-  COUNT(*)
-FROM transcripts t
-WHERE t.transcript_available_at IS NOT NULL
-  AND t.meeting_date IS NOT NULL
-  AND t.end_time IS NOT NULL
-  AND t.transcript_available_at >= NOW() - INTERVAL '7 days'
-GROUP BY 1
-ORDER BY 2 DESC
-LIMIT 15;
-
-
-
+  COUNT(*) AS n,
+  ROUND(AVG(EXTRACT(EPOCH FROM (transcript_available_utc - meeting_end_utc))/60.0), 2) AS avg_min,
+  ROUND(PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (transcript_available_utc - meeting_end_utc))/60.0), 2) AS p50_min,
+  ROUND(PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (transcript_available_utc - meeting_end_utc))/60.0), 2) AS p95_min,
+  ROUND(MAX(EXTRACT(EPOCH FROM (transcript_available_utc - meeting_end_utc))/60.0), 2) AS max_min
+FROM base
+WHERE meeting_end_utc >= (NOW() AT TIME ZONE 'UTC') - INTERVAL '7 days';
