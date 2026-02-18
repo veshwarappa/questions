@@ -2,7 +2,6 @@ SELECT
   mr.region,
   t.meeting_id,
   mr.event_date,
-  mr.start_time,
   mr.end_time,
   CASE
     WHEN mr.end_time ~ '^\d{4}-\d{2}-\d{2}T' OR mr.end_time ~ '^\d{4}-\d{2}-\d{2} '
@@ -15,14 +14,10 @@ SELECT
         WHEN mr.end_time ~ '^\d{4}-\d{2}-\d{2}T' OR mr.end_time ~ '^\d{4}-\d{2}-\d{2} '
           THEN mr.end_time::timestamp
         ELSE (mr.event_date || ' ' || mr.end_time)::timestamp
-      END AS delay_from_end_to_transcript,
-
-  t.processed,
-  t.retry_count
+      END AS delay_from_end_to_transcript
 FROM public.transcripts t
-JOIN public.meeting_records mr
-  ON mr.meeting_id = t.meeting_id
-WHERE t.transcript_available_at IS NOT NULL
+JOIN public.meeting_records mr ON mr.meeting_id = t.meeting_id
+WHERE t.transcript_available_at >= NOW() - INTERVAL '7 days'
   AND (
     t.transcript_available_at
     - CASE
@@ -32,4 +27,4 @@ WHERE t.transcript_available_at IS NOT NULL
       END
   ) > INTERVAL '10 minutes'
 ORDER BY delay_from_end_to_transcript DESC
-LIMIT 20;
+LIMIT 50;
