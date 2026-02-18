@@ -1,21 +1,40 @@
 SELECT
   mr.region,
-  mr.environment,
   t.meeting_id,
 
-  mr.start_time::timestamp AS meeting_started_at,
-  mr.end_time::timestamp   AS meeting_ended_at,
+  mr.event_date,
+  mr.start_time,
+  mr.end_time,
+
+  -- derive a usable meeting_end_ts
+  CASE
+    WHEN mr.end_time ~ '^\d{4}-\d{2}-\d{2}T' OR mr.end_time ~ '^\d{4}-\d{2}-\d{2} '
+      THEN mr.end_time::timestamp
+    ELSE (mr.event_date || ' ' || mr.end_time)::timestamp
+  END AS meeting_end_ts,
 
   t.transcript_available_at,
-  (t.transcript_available_at - mr.end_time::timestamp) AS delay_from_end_to_transcript,
+
+  t.transcript_available_at
+    - CASE
+        WHEN mr.end_time ~ '^\d{4}-\d{2}-\d{2}T' OR mr.end_time ~ '^\d{4}-\d{2}-\d{2} '
+          THEN mr.end_time::timestamp
+        ELSE (mr.event_date || ' ' || mr.end_time)::timestamp
+      END AS delay_from_end_to_transcript,
 
   t.processed,
   t.retry_count
 FROM public.transcripts t
 JOIN public.meeting_records mr
   ON mr.meeting_id = t.meeting_id
-WHERE mr.environment = 'prod'
-  AND t.transcript_available_at IS NOT NULL
-  AND (t.transcript_available_at - mr.end_time::timestamp) > INTERVAL '10 minutes'
+WHERE t.transcript_available_at IS NOT NULL
+  AND (
+    t.transcript_available_at
+    - CASE
+        WHEN mr.end_time ~ '^\d{4}-\d{2}-\d{2}T' OR mr.end_time ~ '^\d{4}-\d{2}-\d{2} '
+          THEN mr.end_time::timestamp
+        ELSE (mr.event_date || ' ' || mr.end_time)::timestamp
+      END
+  ) > INTERVAL '10 minutes'
 ORDER BY delay_from_end_to_transcript DESC
 LIMIT 20;
