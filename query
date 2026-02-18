@@ -1,55 +1,52 @@
-SELECT
-  mr.region,
-  COUNT(*) AS meetings_count,
-  ROUND(
-    AVG(EXTRACT(EPOCH FROM (t.transcript_available_at - t.created_at)) / 60.0),
-    2
-  ) AS avg_generation_minutes,
-  ROUND(
-    MAX(EXTRACT(EPOCH FROM (t.transcript_available_at - t.created_at)) / 60.0),
-    2
-  ) AS max_generation_minutes
-FROM public.transcripts t
-JOIN public.meeting_records mr
+SELECT COUNT(*)
+FROM public.meeting_records
+WHERE environment = 'prod'
+  AND region ILIKE '%au%'
+  AND created_at >= CURRENT_DATE - INTERVAL '1 day'
+  AND created_at < CURRENT_DATE;
+
+
+SELECT mr.meeting_id
+FROM public.meeting_records mr
+LEFT JOIN public.transcripts t
   ON mr.meeting_id = t.meeting_id
-WHERE t.transcript_available_at IS NOT NULL
-  AND t.created_at IS NOT NULL
-  AND t.transcript_available_at >= NOW() - INTERVAL '7 days'
-GROUP BY mr.region
-ORDER BY avg_generation_minutes DESC;
+WHERE mr.environment = 'prod'
+  AND mr.region ILIKE '%au%'
+  AND mr.created_at >= CURRENT_DATE - INTERVAL '1 day'
+  AND mr.created_at < CURRENT_DATE
+  AND t.meeting_id IS NULL;
 
 
-SELECT
-  COUNT(*) AS meetings_count,
-  ROUND(
-    AVG(EXTRACT(EPOCH FROM (t.transcript_available_at - t.created_at)) / 60.0),
-    2
-  ) AS avg_generation_minutes,
-  ROUND(
-    MAX(EXTRACT(EPOCH FROM (t.transcript_available_at - t.created_at)) / 60.0),
-    2
-  ) AS max_generation_minutes
-FROM public.transcripts t
-WHERE t.transcript_available_at IS NOT NULL
-  AND t.created_at IS NOT NULL
-  AND t.transcript_available_at >= NOW() - INTERVAL '7 days';
+SELECT meeting_id, retry_count, max_retries, processed
+FROM public.transcripts
+WHERE meeting_id IN (
+  SELECT meeting_id
+  FROM public.meeting_records
+  WHERE environment = 'prod'
+    AND region ILIKE '%au%'
+    AND created_at >= CURRENT_DATE - INTERVAL '1 day'
+    AND created_at < CURRENT_DATE
+);
 
 
-SELECT
-  mr.region,
-  t.meeting_id,
-  t.created_at AS transcript_row_created_at,
-  t.transcript_available_at,
-  ROUND(EXTRACT(EPOCH FROM (t.transcript_available_at - t.created_at)) / 60.0, 2)
-    AS generation_minutes,
-  t.processed,
-  t.retry_count
-FROM public.transcripts t
-JOIN public.meeting_records mr
-  ON mr.meeting_id = t.meeting_id
-WHERE t.transcript_available_at IS NOT NULL
-  AND t.created_at IS NOT NULL
-  AND t.transcript_available_at >= NOW() - INTERVAL '7 days'
-ORDER BY generation_minutes DESC
-LIMIT 20;
 
+SELECT meeting_record_id, step_name, status
+FROM public.pipeline_events
+WHERE meeting_record_id IN (
+  SELECT meeting_id
+  FROM public.meeting_records
+  WHERE environment = 'prod'
+    AND region ILIKE '%au%'
+    AND created_at >= CURRENT_DATE - INTERVAL '1 day'
+    AND created_at < CURRENT_DATE
+)
+AND status <> 'SUCCESS';
+
+
+SELECT meeting_id, processing_state
+FROM public.meeting_records
+WHERE environment = 'prod'
+  AND region ILIKE '%au%'
+  AND created_at >= CURRENT_DATE - INTERVAL '1 day'
+  AND created_at < CURRENT_DATE
+  AND processing_state <> 'COMPLETED';
