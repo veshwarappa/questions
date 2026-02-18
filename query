@@ -1,20 +1,15 @@
 SELECT
   mr.region,
   t.meeting_id,
-
   mr.event_date,
   mr.start_time,
   mr.end_time,
-
-  -- derive a usable meeting_end_ts
   CASE
     WHEN mr.end_time ~ '^\d{4}-\d{2}-\d{2}T' OR mr.end_time ~ '^\d{4}-\d{2}-\d{2} '
       THEN mr.end_time::timestamp
     ELSE (mr.event_date || ' ' || mr.end_time)::timestamp
   END AS meeting_end_ts,
-
   t.transcript_available_at,
-
   t.transcript_available_at
     - CASE
         WHEN mr.end_time ~ '^\d{4}-\d{2}-\d{2}T' OR mr.end_time ~ '^\d{4}-\d{2}-\d{2} '
