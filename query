@@ -1,30 +1,16 @@
-requests
-| where timestamp between (datetime(2026-02-17 00:00:00) .. datetime(2026-02-18 00:00:00))
-| where cloud_RoleName contains "transcript"
-| summarize 
-    avg_duration = avg(duration),
-    max_duration = max(duration),
-    count_requests = count()
-    by bin(timestamp, 30m)
-| order by timestamp asc
-
-
-requests
-| where timestamp between (datetime(2026-02-17) .. datetime(2026-02-18))
-| where cloud_RoleName contains "transcript"
-| where success == false
-| summarize failure_count = count() by bin(timestamp, 30m)
-| order by timestamp asc
-
-
-exceptions
-| where timestamp between (datetime(2026-02-17) .. datetime(2026-02-18))
-| summarize count() by type, outerMessage
-| order by count_ desc
-
-
-AzureMetrics
+ContainerAppConsoleLogs_CL
 | where TimeGenerated between (datetime(2026-02-17) .. datetime(2026-02-18))
-| where ResourceProvider == "MICROSOFT.SERVICEBUS"
-| where MetricName == "ActiveMessages"
-| summarize avg(Val), max(Val) by bin(TimeGenerated, 30m)
+| where Log_s contains "error" or Log_s contains "exception"
+| summarize count() by bin(TimeGenerated, 30m)
+| order by TimeGenerated asc
+
+
+ContainerAppConsoleLogs_CL
+| where TimeGenerated between (datetime(2026-02-17) .. datetime(2026-02-18))
+| where Log_s contains "transcript"
+| order by TimeGenerated asc
+
+ContainerAppConsoleLogs_CL
+| where TimeGenerated between (datetime(2026-02-17) .. datetime(2026-02-18))
+| where Log_s contains "queue" or Log_s contains "retry"
+| summarize count() by bin(TimeGenerated, 30m)
