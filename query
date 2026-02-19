@@ -4,3 +4,10 @@ ContainerAppConsoleLogs_CL
 | where Log_s contains interviewId
 | project TimeGenerated, Log_s
 | order by TimeGenerated asc
+
+let email = "Carlie.Lang@hays.com.au";
+ContainerAppConsoleLogs_CL
+| where TimeGenerated between (datetime(2026-02-16) .. datetime(2026-02-19))
+| where Log_s contains email
+| project TimeGenerated, Log_s
+| order by TimeGenerated asc
