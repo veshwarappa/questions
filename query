@@ -1,45 +1,45 @@
-let email = "Carlie.Lang@hays.com.au";
 ContainerAppConsoleLogs_CL
-| where TimeGenerated between (datetime(2026-02-16 23:30:00) .. datetime(2026-02-17 02:00:00))
-| where Log_s contains email
-| project TimeGenerated, Log_s
-| order by TimeGenerated asc
-
-
-let email = "Carlie.Lang@hays.com.au";
-ContainerAppConsoleLogs_CL
-| where TimeGenerated between (datetime(2026-02-16 23:30:00) .. datetime(2026-02-17 02:00:00))
-| where Log_s contains email
-| where Log_s contains "transcript"
-   or Log_s contains "vtt"
-   or Log_s contains "Fetched"
-   or Log_s contains "Processing"
-   or Log_s contains "Graph"
-| project TimeGenerated, Log_s
-| order by TimeGenerated asc
-
-
-let email = "Carlie.Lang@hays.com.au";
-ContainerAppConsoleLogs_CL
-| where TimeGenerated between (datetime(2026-02-16 23:30:00) .. datetime(2026-02-17 04:00:00))
-| where Log_s contains email
+| where TimeGenerated >= datetime(2026-02-01)
 | where Log_s contains "email"
    or Log_s contains "mail"
    or Log_s contains "send"
-   or Log_s contains "notification"
+| where Log_s contains "error"
+   or Log_s contains "exception"
+   or Log_s contains "fail"
 | project TimeGenerated, Log_s
-| order by TimeGenerated asc
+| order by TimeGenerated desc
 
-
-let midPrefix = "AAMkADY4MzM0OWQzLTkxNTUt";   // first 25-35 chars only
 ContainerAppConsoleLogs_CL
-| where TimeGenerated between (datetime(2026-02-16) .. datetime(2026-02-18))
-| where Log_s contains midPrefix
+| where TimeGenerated >= datetime(2026-02-01)
+| where Log_s contains "Sending review email"
+| summarize count() by bin(TimeGenerated, 1d)
+| order by TimeGenerated asc
+
+ContainerAppConsoleLogs_CL
+| where TimeGenerated >= datetime(2026-02-01)
+| where Log_s has "graph.microsoft.com" and (Log_s has "sendMail" or Log_s has "sendmail")
+| project TimeGenerated, Log_s
+| order by TimeGenerated asc
+
+ContainerAppConsoleLogs_CL
+| where TimeGenerated >= datetime(2026-02-01)
+| where Log_s has "graph.microsoft.com" and (Log_s has "sendMail" or Log_s has "sendmail")
+| where Log_s has "429" or Log_s has "throttle" or Log_s has "TooManyRequests"
+   or Log_s has "5"  // if your logs print 5xx codes
+   or Log_s has "retry"
 | project TimeGenerated, Log_s
 | order by TimeGenerated asc
 
 
-search "Carlie.Lang@hays.com.au"
-| where TimeGenerated between (datetime(2026-02-16) .. datetime(2026-02-18))
-| project TimeGenerated, Type, *
+ContainerAppConsoleLogs_CL
+| where TimeGenerated >= datetime(2026-02-01)
+| where Log_s has "Sending" and (Log_s has "email" or Log_s has "review email" or Log_s has "follow-up")
+| project TimeGenerated, Log_s
+| order by TimeGenerated asc
+
+
+ContainerAppConsoleLogs_CL
+| where TimeGenerated >= datetime(2026-02-01)
+| where Log_s has "sendMail" or Log_s has "Sending review email"
+| summarize sends=count() by bin(TimeGenerated, 1d)
 | order by TimeGenerated asc
