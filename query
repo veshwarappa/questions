@@ -1,16 +1,84 @@
+let meetingId = "AAMkADY4MzM0OWQzLTkxNTUtNDliOS1iYzY3LTliMjgzZWYzZjZlNgBGAAAAADHJbUP7nruSr2q--fjKpAsBwDT9P1Dv5EOT7kHHO6FDu3IAAAAAENAADT9P1Dv5EOT7kHHO6FDu3IAAFzD8-tAAA=";
 ContainerAppConsoleLogs_CL
-| where TimeGenerated between (datetime(2026-02-17) .. datetime(2026-02-18))
-| where Log_s contains "error" or Log_s contains "exception"
-| summarize count() by bin(TimeGenerated, 30m)
+| where TimeGenerated between (datetime(2026-02-16) .. datetime(2026-02-20))
+| where Log_s has meetingId
+| project TimeGenerated, Log_s
 | order by TimeGenerated asc
 
 
+let meetingId = "AAMkADY4MzM0OWQzLTkxNTUtNDliOS1iYzY3LTliMjgzZWYzZjZlNgBGAAAAADHJbUP7nruSr2q--fjKpAsBwDT9P1Dv5EOT7kHHO6FDu3IAAAAAENAADT9P1Dv5EOT7kHHO6FDu3IAAFzD8-tAAA=";
 ContainerAppConsoleLogs_CL
-| where TimeGenerated between (datetime(2026-02-17) .. datetime(2026-02-18))
-| where Log_s contains "transcript"
+| where TimeGenerated between (datetime(2026-02-16) .. datetime(2026-02-20))
+| where Log_s has meetingId
+| project TimeGenerated, Log_s
 | order by TimeGenerated asc
 
+
+let meetingId = "AAMkADY4MzM0OWQzLTkxNTUtNDliOS1iYzY3LTliMjgzZWYzZjZlNgBGAAAAADHJbUP7nruSr2q--fjKpAsBwDT9P1Dv5EOT7kHHO6FDu3IAAAAAENAADT9P1Dv5EOT7kHHO6FDu3IAAFzD8-tAAA=";
 ContainerAppConsoleLogs_CL
-| where TimeGenerated between (datetime(2026-02-17) .. datetime(2026-02-18))
-| where Log_s contains "queue" or Log_s contains "retry"
-| summarize count() by bin(TimeGenerated, 30m)
+| where TimeGenerated between (datetime(2026-02-16) .. datetime(2026-02-20))
+| where Log_s has meetingId
+| where Log_s has_any ("meeting_record", "meeting records", "created", "payload_submitted", "ingest", "webhook", "received")
+| project TimeGenerated, Log_s
+| order by TimeGenerated asc
+
+
+let meetingId = "AAMkADY4MzM0OWQzLTkxNTUtNDliOS1iYzY3LTliMjgzZWYzZjZlNgBGAAAAADHJbUP7nruSr2q--fjKpAsBwDT9P1Dv5EOT7kHHO6FDu3IAAAAAENAADT9P1Dv5EOT7kHHO6FDu3IAAFzD8-tAAA=";
+ContainerAppConsoleLogs_CL
+| where TimeGenerated between (datetime(2026-02-16) .. datetime(2026-02-20))
+| where Log_s has meetingId
+| where Log_s has "transcript_fetcher_service"
+| project TimeGenerated, Log_s
+| order by TimeGenerated asc
+
+
+let meetingId = "AAMkADY4MzM0OWQzLTkxNTUtNDliOS1iYzY3LTliMjgzZWYzZjZlNgBGAAAAADHJbUP7nruSr2q--fjKpAsBwDT9P1Dv5EOT7kHHO6FDu3IAAAAAENAADT9P1Dv5EOT7kHHO6FDu3IAAFzD8-tAAA=";
+ContainerAppConsoleLogs_CL
+| where TimeGenerated between (datetime(2026-02-16) .. datetime(2026-02-20))
+| where Log_s has meetingId
+| where Log_s has_any ("Graph", "microsoft graph", "token", "authenticate", "401", "403", "429", "throttle")
+| project TimeGenerated, Log_s
+| order by TimeGenerated asc
+
+
+let meetingId = "AAMkADY4MzM0OWQzLTkxNTUtNDliOS1iYzY3LTliMjgzZWYzZjZlNgBGAAAAADHJbUP7nruSr2q--fjKpAsBwDT9P1Dv5EOT7kHHO6FDu3IAAAAAENAADT9P1Dv5EOT7kHHO6FDu3IAAFzD8-tAAA=";
+ContainerAppConsoleLogs_CL
+| where TimeGenerated between (datetime(2026-02-16) .. datetime(2026-02-20))
+| where Log_s has meetingId
+| where Log_s has_any ("transcript_available", "available_at", "processed", "saved", "stored", "uploaded", "vtt", "blob", "s3", "db update")
+| project TimeGenerated, Log_s
+| order by TimeGenerated asc
+
+
+let meetingId = "AAMkADY4MzM0OWQzLTkxNTUtNDliOS1iYzY3LTliMjgzZWYzZjZlNgBGAAAAADHJbUP7nruSr2q--fjKpAsBwDT9P1Dv5EOT7kHHO6FDu3IAAAAAENAADT9P1Dv5EOT7kHHO6FDu3IAAFzD8-tAAA=";
+ContainerAppConsoleLogs_CL
+| where TimeGenerated between (datetime(2026-02-16) .. datetime(2026-02-20))
+| where Log_s has meetingId
+| where Log_s has_any ("email", "mail", "sendgrid", "smtp", "notification", "sent", "delivered", "message-id")
+| project TimeGenerated, Log_s
+| order by TimeGenerated asc
+
+let meetingId = "AAMkADY4MzM0OWQzLTkxNTUtNDliOS1iYzY3LTliMjgzZWYzZjZlNgBGAAAAADHJbUP7nruSr2q--fjKpAsBwDT9P1Dv5EOT7kHHO6FDu3IAAAAAENAADT9P1Dv5EOT7kHHO6FDu3IAAFzD8-tAAA=";
+ContainerAppConsoleLogs_CL
+| where TimeGenerated between (datetime(2026-02-16) .. datetime(2026-02-20))
+| where Log_s has meetingId
+| extend step = case(
+    Log_s has "transcript_fetcher_service", "transcript_fetcher",
+    Log_s has_any ("Graph","microsoft graph","authenticate","token"), "graph/auth",
+    Log_s has_any ("transcript_available","available_at","processed","vtt","uploaded","stored","saved"), "transcript_ready/store",
+    Log_s has_any ("email","sendgrid","smtp","notification","sent","delivered"), "email",
+    Log_s has_any ("error","exception","failed","timeout"), "error",
+    "other"
+)
+| project TimeGenerated, step, Log_s
+| order by TimeGenerated asc
+
+
+let meetingId = "AAMkADY4MzM0OWQzLTkxNTUtNDliOS1iYzY3LTliMjgzZWYzZjZlNgBGAAAAADHJbUP7nruSr2q--fjKpAsBwDT9P1Dv5EOT7kHHO6FDu3IAAAAAENAADT9P1Dv5EOT7kHHO6FDu3IAAFzD8-tAAA=";
+ContainerAppConsoleLogs_CL
+| where TimeGenerated between (datetime(2026-02-16) .. datetime(2026-02-20))
+| where Log_s has meetingId
+| where Log_s has_any ("no transcript", "FILTERED (no transcript)")
+| summarize checks=count(), first=min(TimeGenerated), last=max(TimeGenerated)
+
+
