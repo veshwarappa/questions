@@ -1,13 +1,45 @@
-let interviewId = "5127054";
+let email = "Carlie.Lang@hays.com.au";
 ContainerAppConsoleLogs_CL
-| where TimeGenerated between (datetime(2026-02-16) .. datetime(2026-02-19))
-| where Log_s contains interviewId
+| where TimeGenerated between (datetime(2026-02-16 23:30:00) .. datetime(2026-02-17 02:00:00))
+| where Log_s contains email
 | project TimeGenerated, Log_s
 | order by TimeGenerated asc
 
+
 let email = "Carlie.Lang@hays.com.au";
 ContainerAppConsoleLogs_CL
-| where TimeGenerated between (datetime(2026-02-16) .. datetime(2026-02-19))
+| where TimeGenerated between (datetime(2026-02-16 23:30:00) .. datetime(2026-02-17 02:00:00))
 | where Log_s contains email
+| where Log_s contains "transcript"
+   or Log_s contains "vtt"
+   or Log_s contains "Fetched"
+   or Log_s contains "Processing"
+   or Log_s contains "Graph"
 | project TimeGenerated, Log_s
+| order by TimeGenerated asc
+
+
+let email = "Carlie.Lang@hays.com.au";
+ContainerAppConsoleLogs_CL
+| where TimeGenerated between (datetime(2026-02-16 23:30:00) .. datetime(2026-02-17 04:00:00))
+| where Log_s contains email
+| where Log_s contains "email"
+   or Log_s contains "mail"
+   or Log_s contains "send"
+   or Log_s contains "notification"
+| project TimeGenerated, Log_s
+| order by TimeGenerated asc
+
+
+let midPrefix = "AAMkADY4MzM0OWQzLTkxNTUt";   // first 25-35 chars only
+ContainerAppConsoleLogs_CL
+| where TimeGenerated between (datetime(2026-02-16) .. datetime(2026-02-18))
+| where Log_s contains midPrefix
+| project TimeGenerated, Log_s
+| order by TimeGenerated asc
+
+
+search "Carlie.Lang@hays.com.au"
+| where TimeGenerated between (datetime(2026-02-16) .. datetime(2026-02-18))
+| project TimeGenerated, Type, *
 | order by TimeGenerated asc
