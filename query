@@ -1,52 +1,55 @@
-SELECT COUNT(*)
-FROM public.meeting_records
-WHERE environment = 'prod'
-  AND region ILIKE '%au%'
-  AND created_at >= CURRENT_DATE - INTERVAL '1 day'
-  AND created_at < CURRENT_DATE;
-
-
-SELECT mr.meeting_id
-FROM public.meeting_records mr
-LEFT JOIN public.transcripts t
-  ON mr.meeting_id = t.meeting_id
-WHERE mr.environment = 'prod'
-  AND mr.region ILIKE '%au%'
-  AND mr.created_at >= CURRENT_DATE - INTERVAL '1 day'
-  AND mr.created_at < CURRENT_DATE
-  AND t.meeting_id IS NULL;
-
-
-SELECT meeting_id, retry_count, max_retries, processed
+SELECT meeting_id, transcript_available_at, processed, retry_count
 FROM public.transcripts
-WHERE meeting_id IN (
-  SELECT meeting_id
-  FROM public.meeting_records
-  WHERE environment = 'prod'
-    AND region ILIKE '%au%'
-    AND created_at >= CURRENT_DATE - INTERVAL '1 day'
-    AND created_at < CURRENT_DATE
-);
+WHERE transcript_available_at >= '2026-02-17'::date
+  AND transcript_available_at <  '2026-02-18'::date
+ORDER BY transcript_available_at DESC
+LIMIT 200;
 
 
-
-SELECT meeting_record_id, step_name, status
-FROM public.pipeline_events
-WHERE meeting_record_id IN (
-  SELECT meeting_id
-  FROM public.meeting_records
-  WHERE environment = 'prod'
-    AND region ILIKE '%au%'
-    AND created_at >= CURRENT_DATE - INTERVAL '1 day'
-    AND created_at < CURRENT_DATE
-)
-AND status <> 'SUCCESS';
+SELECT mr.meeting_id, mr.region, mr.environment, mr.created_at
+FROM public.meeting_records mr
+WHERE mr.environment = 'prod'
+  AND mr.meeting_id IN (
+    SELECT meeting_id
+    FROM public.transcripts
+    WHERE transcript_available_at >= '2026-02-17'::date
+      AND transcript_available_at <  '2026-02-18'::date
+  )
+  AND mr.region ILIKE '%au%';
 
 
-SELECT meeting_id, processing_state
+SELECT DISTINCT region
 FROM public.meeting_records
 WHERE environment = 'prod'
-  AND region ILIKE '%au%'
-  AND created_at >= CURRENT_DATE - INTERVAL '1 day'
-  AND created_at < CURRENT_DATE
-  AND processing_state <> 'COMPLETED';
+ORDER BY 1;
+
+
+SELECT *
+FROM public.transcripts
+WHERE meeting_id = '<<MEETING_ID>>';
+
+SELECT step_name, status, started_at, completed_at, duration_seconds, trace_id, span_id, langfuse_url
+FROM public.pipeline_events
+WHERE meeting_record_id = '<<MEETING_ID>>'
+ORDER BY started_at;
+
+
+
+traces
+| where timestamp between (datetime(2026-02-17) .. datetime(2026-02-18))
+| where message has "<<MEETING_ID>>"
+| order by timestamp desc
+
+
+union traces, exceptions, requests, dependencies
+| where timestamp between (datetime(2026-02-17) .. datetime(2026-02-18))
+| where tostring(customDimensions["trace_id"]) == "<<TRACE_ID>>"
+   or operation_Id == "<<TRACE_ID>>"
+| order by timestamp asc
+
+
+union traces, exceptions, dependencies
+| where timestamp between (datetime(2026-02-17) .. datetime(2026-02-18))
+| where message has_any ("graph", "transcript", "poll", "retry", "429", "timeout", "throttle")
+| where message has "<<MEETING_ID>>"
+| order by timestamp asc
