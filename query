@@ -1,18 +1,18 @@
-SELECT 
-    mr.meeting_id,
-    mr.region,
-    (mr.event_date || ' ' || mr.end_time)::timestamp AS meeting_end_ts,
-    t.transcript_available_at,
-    EXTRACT(EPOCH FROM (
-        t.transcript_available_at - 
-        (mr.event_date || ' ' || mr.end_time)::timestamp
-    )) / 60 AS delay_minutes,
-    t.retry_count
+SELECT
+  mr.meeting_id,
+  mr.region,
+  mr.completed_at,
+  t.transcript_available_at,
+  ROUND(EXTRACT(EPOCH FROM (t.transcript_available_at - mr.completed_at))/60.0, 2) AS delay_minutes,
+  t.retry_count,
+  t.processed
 FROM public.meeting_records mr
 JOIN public.transcripts t
-  ON mr.meeting_id = t.meeting_id
+  ON t.meeting_id = mr.meeting_id
 WHERE mr.environment = 'prod'
   AND mr.region = 'ANZ'
-  AND t.transcript_available_at >= '2026-02-17'::date
-  AND t.transcript_available_at <  '2026-02-18'::date
-ORDER BY delay_minutes DESC;
+  AND mr.completed_at >= '2026-02-17'::date
+  AND mr.completed_at <  '2026-02-18'::date
+  AND t.transcript_available_at IS NOT NULL
+ORDER BY delay_minutes DESC
+LIMIT 200;
