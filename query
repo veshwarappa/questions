@@ -1,74 +1,26 @@
-SELECT end_time
+SELECT meeting_id,
+       created_at,
+       payload_submitted_at,
+       completed_at,
+       event_date,
+       end_time
 FROM public.meeting_records
-WHERE environment='prod'
-  AND region='ANZ'
-  AND end_time !~ '^\d{2}:\d{2}(:\d{2})?$'
-LIMIT 50;
+WHERE meeting_id = '<MEETING_ID>';
+
+
+SELECT *
+FROM public.transcripts
+WHERE meeting_id = '<MEETING_ID>';
 
 
 SELECT
-  mr.meeting_id,
   mr.region,
-  (substring(mr.event_date from 1 for 10) || ' ' || substring(mr.end_time from 1 for 8))::timestamp AS meeting_end_ts,
-  t.transcript_available_at,
-  ROUND(EXTRACT(EPOCH FROM (t.transcript_available_at - (substring(mr.event_date from 1 for 10) || ' ' || substring(mr.end_time from 1 for 8))::timestamp))/60.0, 2) AS delay_minutes,
-  t.retry_count
-FROM public.meeting_records mr
-JOIN public.transcripts t ON t.meeting_id = mr.meeting_id
-WHERE mr.environment = 'prod'
-  AND mr.region = 'ANZ'
-  AND substring(mr.event_date from 1 for 10) ~ '^\d{4}-\d{2}-\d{2}$'
-  AND substring(mr.end_time from 1 for 5) ~ '^\d{2}:\d{2}$'
-  AND (substring(mr.event_date from 1 for 10) || ' ' || substring(mr.end_time from 1 for 8))::timestamp >= '2026-02-17'::timestamp
-  AND (substring(mr.event_date from 1 for 10) || ' ' || substring(mr.end_time from 1 for 8))::timestamp <  '2026-02-18'::timestamp
-  AND t.transcript_available_at IS NOT NULL
-ORDER BY delay_minutes DESC
-LIMIT 100;
-
-
-SELECT
-  mr.meeting_id,
-  mr.region,
-  CASE
-    WHEN mr.end_time ~ '^\d{2}:\d{2}(:\d{2})?$'
-      THEN (mr.event_date || ' ' || mr.end_time)::timestamp
-    WHEN mr.end_time ~ '^\d{4}-\d{2}-\d{2}T'
-      THEN replace(mr.end_time,'T',' ')::timestamp
-    ELSE NULL
-  END AS meeting_end_ts,
-  t.transcript_available_at,
-  ROUND(EXTRACT(EPOCH FROM (t.transcript_available_at - (
-    CASE
-      WHEN mr.end_time ~ '^\d{2}:\d{2}(:\d{2})?$'
-        THEN (mr.event_date || ' ' || mr.end_time)::timestamp
-      WHEN mr.end_time ~ '^\d{4}-\d{2}-\d{2}T'
-        THEN replace(mr.end_time,'T',' ')::timestamp
-      ELSE NULL
-    END
-  )))/60.0, 2) AS delay_minutes
+  ROUND(MAX(EXTRACT(EPOCH FROM (t.transcript_available_at -
+    (substring(mr.event_date from 1 for 10) || ' ' || substring(mr.end_time from 1 for 8))::timestamp
+  )))/60.0,2) AS max_delay_min
 FROM public.meeting_records mr
 JOIN public.transcripts t ON t.meeting_id = mr.meeting_id
 WHERE mr.environment='prod'
-  AND mr.region='ANZ'
-  AND mr.event_date ~ '^\d{4}-\d{2}-\d{2}'
-  AND t.transcript_available_at IS NOT NULL
-  AND (
-    CASE
-      WHEN mr.end_time ~ '^\d{2}:\d{2}(:\d{2})?$'
-        THEN (mr.event_date || ' ' || mr.end_time)::timestamp
-      WHEN mr.end_time ~ '^\d{4}-\d{2}-\d{2}T'
-        THEN replace(mr.end_time,'T',' ')::timestamp
-      ELSE NULL
-    END
-  ) >= '2026-02-17'::timestamp
-  AND (
-    CASE
-      WHEN mr.end_time ~ '^\d{2}:\d{2}(:\d{2})?$'
-        THEN (mr.event_date || ' ' || mr.end_time)::timestamp
-      WHEN mr.end_time ~ '^\d{4}-\d{2}-\d{2}T'
-        THEN replace(mr.end_time,'T',' ')::timestamp
-      ELSE NULL
-    END
-  ) < '2026-02-18'::timestamp
-ORDER BY delay_minutes DESC
-LIMIT 100;
+  AND substring(mr.event_date from 1 for 10)='2026-02-17'
+GROUP BY mr.region
+ORDER BY max_delay_min DESC;
