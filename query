@@ -1,40 +1,50 @@
-SELECT meeting_id,
-       created_at,
-       payload_submitted_at,
-       completed_at,
-       event_date,
-       end_time
-FROM public.meeting_records
-WHERE meeting_id = '<MEETING_ID>';
-
-
 SELECT
-  meeting_id,
-  subject,
-  start_date,
-  meeting_date,
-  start_time,
-  end_time,
-  processed,
-  retry_count,
-  max_retries,
-  created_at,
-  last_checked_at,
-  transcript_available_at,
-  filename
-FROM public.transcripts
-WHERE meeting_id = '<MEETING_ID>';
-
-
-
-SELECT
-  mr.region,
-  ROUND(MAX(EXTRACT(EPOCH FROM (t.transcript_available_at -
-    (substring(mr.event_date from 1 for 10) || ' ' || substring(mr.end_time from 1 for 8))::timestamp
-  )))/60.0,2) AS max_delay_min
+  mr.meeting_id,
+  substring(mr.event_date from 1 for 10) AS mr_event_date,
+  t.meeting_date AS t_meeting_date,
+  t.start_date AS t_start_date,
+  mr.created_at,
+  t.transcript_available_at
 FROM public.meeting_records mr
 JOIN public.transcripts t ON t.meeting_id = mr.meeting_id
 WHERE mr.environment='prod'
-  AND substring(mr.event_date from 1 for 10)='2026-02-17'
-GROUP BY mr.region
-ORDER BY max_delay_min DESC;
+  AND mr.region='ANZ'
+  AND t.transcript_available_at >= '2026-02-16'::date
+  AND t.transcript_available_at <  '2026-02-20'::date
+ORDER BY t.transcript_available_at DESC
+LIMIT 50;
+
+
+SELECT
+  t.meeting_id,
+  t.meeting_date,
+  t.end_time,
+  (substring(t.meeting_date from 1 for 10) || ' ' || substring(t.end_time from 1 for 8))::timestamp AS meeting_end_ts,
+  t.transcript_available_at,
+  ROUND(EXTRACT(EPOCH FROM (
+    t.transcript_available_at -
+    (substring(t.meeting_date from 1 for 10) || ' ' || substring(t.end_time from 1 for 8))::timestamp
+  ))/60.0, 2) AS delay_minutes,
+  t.retry_count
+FROM public.transcripts t
+JOIN public.meeting_records mr ON mr.meeting_id = t.meeting_id
+WHERE mr.environment='prod'
+  AND mr.region='ANZ'
+  AND t.transcript_available_at >= '2026-02-17'::date
+  AND t.transcript_available_at <  '2026-02-18'::date
+  AND t.transcript_available_at IS NOT NULL
+ORDER BY delay_minutes DESC
+LIMIT 100;
+
+
+SELECT
+  mr.meeting_id,
+  mr.event_date AS mr_event_date,
+  mr.end_time AS mr_end_time,
+  mr.created_at AS mr_created_at,
+  t.meeting_date AS t_meeting_date,
+  t.end_time AS t_end_time,
+  t.transcript_available_at
+FROM public.meeting_records mr
+JOIN public.transcripts t ON t.meeting_id = mr.meeting_id
+WHERE mr.meeting_id = '<MEETING_ID>';
