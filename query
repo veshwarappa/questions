@@ -1,14 +1,6 @@
-SELECT
-  mr.meeting_id,
-  mr.region,
-  mr.interviewee_email,
-  mr.interview_id,
-  mr.numerical_meeting_id,
-  mr.payload_submitted_at,
-  mr.completed_at,
-  t.transcript_available_at,
-  t.retry_count,
-  t.last_checked_at
-FROM public.meeting_records mr
-JOIN public.transcripts t ON t.meeting_id = mr.meeting_id
-WHERE mr.meeting_id = '<MEETING_ID>';
+let interviewId = "5127054";
+ContainerAppConsoleLogs_CL
+| where TimeGenerated between (datetime(2026-02-16) .. datetime(2026-02-19))
+| where Log_s contains interviewId
+| project TimeGenerated, Log_s
+| order by TimeGenerated asc
