@@ -8,9 +8,23 @@ FROM public.meeting_records
 WHERE meeting_id = '<MEETING_ID>';
 
 
-SELECT *
+SELECT
+  meeting_id,
+  subject,
+  start_date,
+  meeting_date,
+  start_time,
+  end_time,
+  processed,
+  retry_count,
+  max_retries,
+  created_at,
+  last_checked_at,
+  transcript_available_at,
+  filename
 FROM public.transcripts
 WHERE meeting_id = '<MEETING_ID>';
+
 
 
 SELECT
