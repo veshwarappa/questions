@@ -43,3 +43,6 @@ ContainerAppConsoleLogs_CL
 | where Log_s has "sendMail" or Log_s has "Sending review email"
 | summarize sends=count() by bin(TimeGenerated, 1d)
 | order by TimeGenerated asc
+
+
+Posting to Graph API: https://graph.microsoft.com/v1.0/users/AIAgentsAlerts@hays.com.au/sendMail
