@@ -5,3 +5,14 @@ ContainerAppConsoleLogs_CL
     or Log_s has "Sending review email"
 | project TimeGenerated, Log_s
 | order by TimeGenerated asc
+
+
+let midPrefix = "AAMkADayYWI5NjFmLWM4MzEtNDRLZC1iZDI3LWI4Mzg5MGM1MWE3Ng";
+ContainerAppConsoleLogs_CL
+| where TimeGenerated between (datetime(2026-02-17 23:45:00) .. datetime(2026-02-18 03:00:00))
+| where Log_s has midPrefix
+| where Log_s has "graph.microsoft.com"
+| where Log_s has_any ("sendMail", "sendmail", "Posting to Graph API")
+| project TimeGenerated, Log_s
+| order by TimeGenerated asc
+
