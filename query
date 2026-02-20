@@ -23,5 +23,23 @@ ContainerAppConsoleLogs_CL
 | order by TimeGenerated asc
 
 
+SELECT 
+    mr.meeting_id,
+    mr.interviewee_email,
+    mr.payload_submitted_at,
+    mr.completed_at,
+    t.transcript_available_at,
+    t.retry_count,
+    t.last_checked_at
+FROM public.meeting_records mr
+JOIN public.transcripts t 
+    ON t.meeting_id = mr.meeting_id
+WHERE mr.environment = 'prod'
+AND mr.region = 'ANZ'
+AND mr.completed_at::date = '2026-02-18'
+ORDER BY mr.completed_at;
+
+
+
 INFO: Sending review email...
 INFO: Posting to Graph API...
