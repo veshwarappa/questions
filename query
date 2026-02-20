@@ -1,48 +1,27 @@
-ContainerAppConsoleLogs_CL
-| where TimeGenerated >= datetime(2026-02-01)
-| where Log_s contains "email"
-   or Log_s contains "mail"
-   or Log_s contains "send"
-| where Log_s contains "error"
-   or Log_s contains "exception"
-   or Log_s contains "fail"
-| project TimeGenerated, Log_s
-| order by TimeGenerated desc
+SELECT 
+    mr.meeting_id,
+    mr.payload_submitted_at,
+    mr.completed_at,
+    t.transcript_available_at,
+    t.retry_count,
+    t.last_checked_at
+FROM public.meeting_records mr
+JOIN public.transcripts t 
+    ON t.meeting_id = mr.meeting_id
+WHERE mr.environment = 'prod'
+AND mr.region = 'ANZ'
+AND mr.completed_at::date = '2026-02-18'
+AND mr.interviewee_email = 'priyanka.khurana@hays.com.au';
 
-ContainerAppConsoleLogs_CL
-| where TimeGenerated >= datetime(2026-02-01)
-| where Log_s contains "Sending review email"
-| summarize count() by bin(TimeGenerated, 1d)
-| order by TimeGenerated asc
 
+let meetingId = "PUT_MEETING_ID_HERE";
 ContainerAppConsoleLogs_CL
-| where TimeGenerated >= datetime(2026-02-01)
-| where Log_s has "graph.microsoft.com" and (Log_s has "sendMail" or Log_s has "sendmail")
-| project TimeGenerated, Log_s
-| order by TimeGenerated asc
-
-ContainerAppConsoleLogs_CL
-| where TimeGenerated >= datetime(2026-02-01)
-| where Log_s has "graph.microsoft.com" and (Log_s has "sendMail" or Log_s has "sendmail")
-| where Log_s has "429" or Log_s has "throttle" or Log_s has "TooManyRequests"
-   or Log_s has "5"  // if your logs print 5xx codes
-   or Log_s has "retry"
+| where TimeGenerated between (datetime(2026-02-18 00:00:00) .. datetime(2026-02-19 00:00:00))
+| where Log_s has meetingId
+    or Log_s has "Sending review email"
 | project TimeGenerated, Log_s
 | order by TimeGenerated asc
 
 
-ContainerAppConsoleLogs_CL
-| where TimeGenerated >= datetime(2026-02-01)
-| where Log_s has "Sending" and (Log_s has "email" or Log_s has "review email" or Log_s has "follow-up")
-| project TimeGenerated, Log_s
-| order by TimeGenerated asc
-
-
-ContainerAppConsoleLogs_CL
-| where TimeGenerated >= datetime(2026-02-01)
-| where Log_s has "sendMail" or Log_s has "Sending review email"
-| summarize sends=count() by bin(TimeGenerated, 1d)
-| order by TimeGenerated asc
-
-
-Posting to Graph API: https://graph.microsoft.com/v1.0/users/AIAgentsAlerts@hays.com.au/sendMail
+INFO: Sending review email...
+INFO: Posting to Graph API...
