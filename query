@@ -16,3 +16,29 @@ SELECT
   end_time
 FROM public.meeting_records
 WHERE meeting_id = 'AAMkADAy...';
+
+
+SELECT
+  meeting_id,
+  event_date,
+  start_time,
+  end_time
+FROM public.meeting_records
+WHERE meeting_id = 'AAMkADAy...';
+
+SELECT
+  meeting_id,
+  meeting_date,
+  start_time,
+  end_time,
+  transcript_available_at
+FROM public.transcripts
+WHERE meeting_id = 'AAMkADAy...';
+
+SELECT
+  meeting_id,
+  meeting_date,
+  start_time,
+  end_time
+FROM public.transcripts
+WHERE meeting_id = 'AAMkADAy...';
