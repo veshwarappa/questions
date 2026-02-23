@@ -73,5 +73,18 @@ from meeting_records
 where meeting_id = '<MEETING_ID>';
 
 
+select
+  meeting_id,
+  interview_id,
+  candidate_id,
+  interview_date,
+  start_time,
+  end_time,
+  transcript_available_at
+from transcripts
+where interview_id = (select interview_id from transcripts where meeting_id = '<MEETING_ID>')
+order by transcript_available_at desc;
+
+
 
 
