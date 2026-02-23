@@ -5,3 +5,25 @@ select
   created_at
 from meeting_records
 where meeting_id = '<MEETING_ID>';
+
+
+select
+  meeting_id,
+  meeting_date,
+  interview_date,
+  start_time,
+  end_time,
+  transcript_available_at,
+  join_url
+from transcripts
+where meeting_id = '<MEETING_ID>';
+
+select
+  meeting_id,
+  created_at,
+  payload_submitted_at,
+  completed_at,
+  start_time,
+  end_time
+from meeting_records
+where meeting_id = '<MEETING_ID>';
