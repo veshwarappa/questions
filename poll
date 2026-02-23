@@ -1,24 +1,29 @@
 select
   meeting_id,
-  subject,
-  region,
-  environment,
-  interviewee_email,
-  event_date,
-  start_time,
-  end_time,
-  created_at,
-  payload_submitted_at,
-  completed_at,
-  processing_state,
-  processing_duration_seconds
+  submitted_payload
 from public.meeting_records
-where subject ilike '%testpriyanka%'
-  and subject ilike '%OT test HBS%'
-  and event_date like '%18/02/2026%'   -- adjust if stored as 2026-02-18
-  and region in ('ANZ','AU','APAC','JP') -- keep AU/ANZ for this Sydney test
-order by created_at desc
-limit 20;
+where meeting_id = '<MEETING_ID>';
+
+select
+  meeting_id,
+  submitted_payload->>'startDateTime' as start_dt,
+  submitted_payload->>'endDateTime' as end_dt,
+  submitted_payload->>'createdDateTime' as created_dt,
+  submitted_payload->>'originalStartTimeZone' as start_tz,
+  submitted_payload->>'originalEndTimeZone' as end_tz
+from public.meeting_records
+where meeting_id = '<MEETING_ID>';
+
+
+select
+  step_name,
+  status,
+  started_at,
+  completed_at,
+  step_metadata
+from public.pipeline_events
+where meeting_record_id = '<MEETING_ID>'
+  and step_name = 'microsoft_graph_integration';
 
 
 select
@@ -27,96 +32,20 @@ select
   created_at,
   transcript_available_at,
   last_checked_at,
-  retry_count,
-  max_retries,
-  processed,
-  filename
+  retry_count
 from public.transcripts
-where meeting_id = '<MEETING_ID>';
-
-select
-  mr.meeting_id,
-  mr.subject,
-  mr.region,
-  mr.environment,
-  mr.completed_at as meeting_completed_at,
-  t.transcript_available_at,
-  t.created_at as transcript_row_created_at,
-  (t.transcript_available_at - mr.completed_at) as delay_end_to_available,
-  (t.created_at - mr.completed_at) as delay_end_to_row_created,
-  (t.transcript_available_at - t.created_at) as delay_row_created_to_available
-from public.meeting_records mr
-join public.transcripts t on t.meeting_id = mr.meeting_id
-where mr.meeting_id = '<MEETING_ID>';
+where retry_count > 0
+order by created_at desc
+limit 50;
 
 
 select
-  id,
-  meeting_record_id,
   step_name,
-  step_type,
   status,
   started_at,
-  completed_at,
-  duration_seconds,
-  trace_id,
-  span_id
+  completed_at
 from public.pipeline_events
-where meeting_record_id = '<MEETING_ID>'
-order by started_at asc;
-
-
-select
-  pe.id,
-  pe.meeting_record_id,
-  mr.meeting_id,
-  pe.step_name,
-  pe.status,
-  pe.started_at,
-  pe.completed_at,
-  pe.duration_seconds,
-  pe.trace_id
-from public.pipeline_events pe
-join public.meeting_records mr
-  on pe.meeting_record_id = mr.numerical_meeting_id  -- OR mr.meeting_id, OR another mapping
-where mr.meeting_id = '<MEETING_ID>'
-order by pe.started_at asc;
-
-
-with x as (
-  select
-    step_name,
-    started_at,
-    lag(started_at) over (partition by step_name order by started_at) as prev_started_at
-  from public.pipeline_events
-  where meeting_record_id = '<MEETING_ID>'
-)
-select
-  step_name,
-  started_at,
-  prev_started_at,
-  (started_at - prev_started_at) as gap
-from x
-where prev_started_at is not null
+where meeting_record_id = '<THAT_MEETING_ID>'
 order by started_at;
-
-
-select
-  mr.region,
-  mr.environment,
-  date(mr.completed_at) as day,
-  count(*) as meetings,
-  percentile_cont(0.5) within group (order by (t.transcript_available_at - mr.completed_at)) as p50_delay,
-  percentile_cont(0.9) within group (order by (t.transcript_available_at - mr.completed_at)) as p90_delay,
-  max(t.transcript_available_at - mr.completed_at) as max_delay
-from public.meeting_records mr
-join public.transcripts t on t.meeting_id = mr.meeting_id
-where mr.region in ('ANZ','AU')
-  and mr.environment = 'PROD'
-  and mr.completed_at >= timestamp '2026-02-18 00:00:00'
-  and mr.completed_at <  timestamp '2026-02-19 00:00:00'
-group by 1,2,3
-order by 3 desc;
-
 
 
