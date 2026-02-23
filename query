@@ -1,29 +1,10 @@
 SELECT
-  mr.meeting_id,
-  t.transcript_available_at,
-  (mr.event_date::date + mr.end_time::time)                     AS scheduled_end_ts,
-  (t.transcript_available_at - (mr.event_date::date + mr.end_time::time)) AS scheduled_delay,
-  ROUND(EXTRACT(EPOCH FROM (t.transcript_available_at - (mr.event_date::date + mr.end_time::time))) / 60.0, 2)
-                                                               AS scheduled_delay_minutes
-FROM public.meeting_records mr
-JOIN public.transcripts t
-  ON t.meeting_id = mr.meeting_id
-WHERE mr.meeting_id = 'AAMkADAy...';
-
-
-SELECT
-  mr.meeting_id,
-  t.transcript_available_at,
-  (NULLIF(mr.event_date,'')::date + NULLIF(mr.end_time,'')::time) AS scheduled_end_ts,
-  (t.transcript_available_at - (NULLIF(mr.event_date,'')::date + NULLIF(mr.end_time,'')::time)) AS scheduled_delay,
-  ROUND(EXTRACT(EPOCH FROM (t.transcript_available_at - (NULLIF(mr.event_date,'')::date + NULLIF(mr.end_time,'')::time))) / 60.0, 2)
-    AS scheduled_delay_minutes
-FROM public.meeting_records mr
-JOIN public.transcripts t
-  ON t.meeting_id = mr.meeting_id
-WHERE mr.meeting_id = 'AAMkADAy...';
-
-
-SELECT meeting_id, event_date, end_time
-FROM public.meeting_records
+  meeting_id,
+  created_at,
+  last_checked_at,
+  transcript_available_at,
+  (transcript_available_at - created_at) AS processing_time,
+  ROUND(EXTRACT(EPOCH FROM (transcript_available_at - created_at)) / 60.0, 2)
+    AS processing_minutes
+FROM public.transcripts
 WHERE meeting_id = 'AAMkADAy...';
