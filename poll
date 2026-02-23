@@ -1,0 +1,81 @@
+select distinct key
+from meeting_records,
+lateral jsonb_object_keys(submitted_payload::jsonb) as key
+where meeting_id = '<MEETING_ID>'
+  and (key ilike '%time%' or key ilike '%date%' or key ilike '%end%' or key ilike '%start%')
+order by key;
+
+
+select jsonb_path_query(submitted_payload::jsonb, '$.** ? (@type() == "string" && @ like_regex "^[0-9]{4}-[0-9]{2}-[0-9]{2}T")') as iso_values
+from meeting_records
+where meeting_id = '<MEETING_ID>';
+
+select
+  created_at,
+  (<PAYLOAD_END_FIELD_EXPRESSION>)::timestamp as payload_end,
+  created_at - (<PAYLOAD_END_FIELD_EXPRESSION>)::timestamp as ingestion_delay
+from meeting_records
+where meeting_id = '<MEETING_ID>';
+
+
+
+select
+  date_trunc('minute', created_at) as minute_bucket,
+  count(*) as meetings_ingested
+from meeting_records
+where environment = 'prod'
+  and region = 'ANZ'
+  and created_at >= now() - interval '7 days'
+group by 1
+order by 1;
+
+select
+  extract(minute from created_at) as minute_of_hour,
+  count(*) as cnt
+from meeting_records
+where environment = 'prod'
+  and region = 'ANZ'
+  and created_at >= now() - interval '14 days'
+group by 1
+order by 1;
+
+
+select
+  region,
+  extract(minute from created_at) as minute_of_hour,
+  count(*) as cnt
+from meeting_records
+where environment='prod'
+  and created_at >= now() - interval '14 days'
+group by 1,2
+order by 1,2;
+
+select
+  extract(minute from last_checked_at) as minute_of_hour,
+  count(*) as cnt
+from transcripts
+where last_checked_at is not null
+  and created_at >= now() - interval '14 days'
+group by 1
+order by 1;
+
+select
+  extract(minute from created_at) as minute_of_hour,
+  count(*) as cnt
+from meeting_records
+where environment='prod'
+  and region='ANZ'
+  and created_at >= now() - interval '14 days'
+group by 1
+order by 1;
+
+
+select
+  region,
+  extract(minute from created_at) as minute_of_hour,
+  count(*) as cnt
+from meeting_records
+where environment='prod'
+  and created_at >= now() - interval '14 days'
+group by 1,2
+order by 1,2;
