@@ -10,12 +10,19 @@ select jsonb_path_query(submitted_payload::jsonb, '$.** ? (@type() == "string" &
 from meeting_records
 where meeting_id = '<MEETING_ID>';
 
-select
-  created_at,
-  (<PAYLOAD_END_FIELD_EXPRESSION>)::timestamp as payload_end,
-  created_at - (<PAYLOAD_END_FIELD_EXPRESSION>)::timestamp as ingestion_delay
+select submitted_payload::jsonb ->> 'endTime'
 from meeting_records
 where meeting_id = '<MEETING_ID>';
+
+
+select
+  created_at,
+  submitted_payload::jsonb ->> 'endTime' as payload_end_raw,
+  (submitted_payload::jsonb ->> 'endTime')::timestamp as payload_end,
+  created_at - (submitted_payload::jsonb ->> 'endTime')::timestamp as ingestion_delay
+from meeting_records
+where meeting_id = '<MEETING_ID>';
+
 
 
 
@@ -79,3 +86,4 @@ where environment='prod'
   and created_at >= now() - interval '14 days'
 group by 1,2
 order by 1,2;
+
