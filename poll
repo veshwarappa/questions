@@ -1,29 +1,3 @@
-select
-  submitted_payload::jsonb ->> 'interviewDate' as interview_date_raw,
-  submitted_payload::jsonb ->> 'startTime'     as start_time_raw,
-  submitted_payload::jsonb ->> 'endTime'       as end_time_raw,
-  created_at
-from meeting_records
-where meeting_id = '<MEETING_ID>';
-
-
-select
-  meeting_id,
-  meeting_date,
-  interview_date,
-  start_time,
-  end_time,
-  transcript_available_at,
-  join_url
-from transcripts
-where meeting_id = '<MEETING_ID>';
-
-select
-  meeting_id,
-  created_at,
-  payload_submitted_at,
-  completed_at,
-  start_time,
-  end_time
+select meeting_date
 from meeting_records
 where meeting_id = '<MEETING_ID>';
