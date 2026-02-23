@@ -1,0 +1,67 @@
+select
+  occurred_at,
+  step_name,
+  error_type,
+  error_category,
+  error_code,
+  error_message,
+  trace_id,
+  span_id
+from errors
+where meeting_record_id = '<MEETING_ID>'
+order by occurred_at desc;
+
+
+select
+  occurred_at,
+  step_name,
+  error_type,
+  error_code,
+  error_message,
+  trace_id,
+  span_id
+from errors
+where trace_id = '<TRACE_ID>'
+order by occurred_at desc;
+
+
+select
+  occurred_at,
+  meeting_record_id,
+  step_name,
+  error_type,
+  error_code,
+  left(error_message, 300) as error_message_300
+from errors
+where occurred_at >= now() - interval '7 days'
+  and (
+    error_message ilike '%transcript%'
+    or error_message ilike '%graph%'
+    or error_message ilike '%timeout%'
+    or error_message ilike '%429%'
+    or error_message ilike '%throttle%'
+  )
+order by occurred_at desc
+limit 200;
+
+
+select jsonb_object_keys(submitted_payload::jsonb)
+from meeting_records
+where meeting_id = '<MEETING_ID>';
+
+
+select
+  meeting_id,
+  submitted_payload::jsonb ->> 'startDateTime' as payload_start,
+  submitted_payload::jsonb ->> 'endDateTime'   as payload_end,
+  created_at,
+  (created_at - (submitted_payload::jsonb ->> 'endDateTime')::timestamp) as delay_from_meeting_end_to_ingestion
+from meeting_records
+where meeting_id = '<MEETING_ID>';
+
+
+select *
+from follow_up_emails
+where meeting_id = '<MEETING_ID>'
+order by created_at desc;
+
