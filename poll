@@ -1,10 +1,1 @@
-GET /users/{organizerId}/onlineMeetings?$filter=joinWebUrl eq '{join_url}'
-GET /users/{organizerId}/onlineMeetings/{meetingId}/transcripts
-
-
-https://graph.microsoft.com/v1.0/users/Priyanka.Khurana@hays.com.au/onlineMeetings
-
-https://graph.microsoft.com/v1.0/users/Priyanka.Khurana%40hays.com.au/onlineMeetings
-
-https://graph.microsoft.com/v1.0/users/Priyanka.Khurana%40hays.com.au?$select=id,displayName,userPrincipalName
-
+GET https://graph.microsoft.com/v1.0/me?$select=id,displayName,userPrincipalName
