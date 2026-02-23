@@ -1,71 +1,118 @@
-SELECT
-    mr.interview_id,
+select meeting_id, event_date, start_time, end_time, created_at, completed_at, payload_submitted_at
+from meeting_records
+where candidate_id = '10063807'
+order by created_at desc
+limit 5;
 
-    -- meeting_records
-    mr.start_time               AS mr_start_time,
-    mr.end_time                 AS mr_end_time,
-    mr.event_date,
-    mr.created_at               AS mr_created_at,
-    mr.completed_at             AS mr_completed_at,
-    mr.payload_submitted_at,
-
-    -- transcripts
-    t.start_time                AS transcript_start_time,
-    t.end_time                  AS transcript_end_time,
-    t.start_date,
-    t.meeting_date,
-    t.interview_date,
-    t.created_at                AS transcript_created_at,
-    t.last_checked_at,
-    t.transcript_available_at,
-
-    -- pipeline_events
-    pe.step_name,
-    pe.started_at               AS step_started_at,
-    pe.completed_at             AS step_completed_at
-
-FROM public.meeting_records mr
-
-LEFT JOIN public.transcripts t
-    ON mr.interview_id = t.interview_id
-
-LEFT JOIN public.pipeline_events pe
-    ON mr.meeting_id = pe.meeting_record_id
-
-WHERE mr.interview_id = '5062549'
-ORDER BY pe.started_at;
+select
+  meeting_id,
+  candidate_id,
+  subject,
+  region,
+  environment,
+  event_date,
+  start_time,
+  end_time,
+  created_at,
+  payload_submitted_at,
+  completed_at,
+  processing_duration_seconds
+from meeting_records
+where candidate_id = '10063807'
+  and event_date like '%2026-02-18%'  -- adjust to your stored format
+  and subject ilike '%Louisa%'
+order by created_at desc;
 
 
+select
+  meeting_id,
+  candidate_id,
+  subject,
+  processed,
+  created_at as transcript_row_created_at,
+  last_checked_at,
+  retry_count,
+  max_retries,
+  transcript_available_at
+from transcripts
+where meeting_id = '<MEETING_ID>';
 
 
-SELECT
-    mr.meeting_id,
-    mr.interview_id,
-    mr.completed_at AS meeting_completed_at,
-    t.transcript_available_at,
-    EXTRACT(EPOCH FROM 
-        (t.transcript_available_at - mr.completed_at)
-    ) / 60 AS minutes_between_meeting_and_transcript
-FROM public.meeting_records mr
-LEFT JOIN public.transcripts t
-    ON mr.interview_id = t.interview_id
-WHERE mr.interview_id = '5143669';
+select
+  mr.meeting_id,
+  mr.region,
+  mr.environment,
+  mr.created_at            as meeting_row_created_at,
+  mr.payload_submitted_at  as payload_submitted_at,
+  mr.completed_at          as meeting_pipeline_completed_at,
+
+  t.created_at             as transcript_row_created_at,
+  t.transcript_available_at,
+  t.last_checked_at,
+  t.retry_count,
+  t.max_retries,
+  t.processed
+from meeting_records mr
+left join transcripts t
+  on t.meeting_id = mr.meeting_id
+where mr.meeting_id = '<MEETING_ID>';
 
 
-SELECT
-    mr.completed_at AT TIME ZONE 'Australia/Sydney' AS meeting_completed_sydney,
-    mr.payload_submitted_at AT TIME ZONE 'Australia/Sydney' AS payload_received_sydney,
-    pe.started_at AT TIME ZONE 'Australia/Sydney' AS pipeline_started_sydney,
-    t.transcript_available_at AT TIME ZONE 'Australia/Sydney' AS transcript_available_sydney,
-    
-    EXTRACT(EPOCH FROM (mr.payload_submitted_at - mr.completed_at)) / 60 AS mins_meeting_to_payload,
-    EXTRACT(EPOCH FROM (pe.started_at - mr.payload_submitted_at)) / 60 AS mins_payload_to_processing,
-    EXTRACT(EPOCH FROM (t.transcript_available_at - mr.completed_at)) / 60 AS total_minutes_meeting_to_transcript
+select
+  step_name,
+  step_type,
+  status,
+  started_at,
+  completed_at,
+  duration_seconds,
+  trace_id,
+  langfuse_url
+from pipeline_events
+where meeting_record_id = '<MEETING_ID>'
+order by started_at asc;
 
-FROM meeting_records mr
-LEFT JOIN transcripts t ON mr.interview_id = t.interview_id
-LEFT JOIN pipeline_events pe ON mr.meeting_id = pe.meeting_record_id
-WHERE mr.interview_id = '5143669'
-ORDER BY pe.started_at
-LIMIT 1;
 
+select
+  meeting_id,
+  created_at,
+  last_checked_at,
+  retry_count,
+  transcript_available_at,
+  (transcript_available_at - created_at) as time_waiting_for_transcript
+from transcripts
+where meeting_id = '<MEETING_ID>';
+
+
+select *
+from errors
+where
+  created_at >= (now() - interval '7 days')
+  and (
+    message ilike '%transcript%'
+    or message ilike '%graph%'
+    or message ilike '%meeting%'
+    or message ilike '%poll%'
+  )
+order by created_at desc
+limit 200;
+
+
+
+select meeting_id, subject, region, environment, created_at
+from meeting_records
+where candidate_id = '10063807'
+order by created_at desc;
+
+select
+  mr.meeting_id,
+  mr.created_at, mr.payload_submitted_at, mr.completed_at,
+  t.created_at as t_created_at, t.transcript_available_at, t.last_checked_at, t.retry_count, t.processed
+from meeting_records mr
+left join transcripts t on t.meeting_id = mr.meeting_id
+where mr.meeting_id = '<MEETING_ID>';
+
+
+select step_name, status, started_at, completed_at, duration_seconds
+from pipeline_events
+where meeting_record_id = '<MEETING_ID>'
+order by started_at;
