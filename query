@@ -1,4 +1,44 @@
 SELECT
+    mr.interview_id,
+
+    -- meeting_records
+    mr.start_time               AS mr_start_time,
+    mr.end_time                 AS mr_end_time,
+    mr.event_date,
+    mr.created_at               AS mr_created_at,
+    mr.completed_at             AS mr_completed_at,
+    mr.payload_submitted_at,
+
+    -- transcripts
+    t.start_time                AS transcript_start_time,
+    t.end_time                  AS transcript_end_time,
+    t.start_date,
+    t.meeting_date,
+    t.interview_date,
+    t.created_at                AS transcript_created_at,
+    t.last_checked_at,
+    t.transcript_available_at,
+
+    -- pipeline_events
+    pe.step_name,
+    pe.started_at               AS step_started_at,
+    pe.completed_at             AS step_completed_at
+
+FROM public.meeting_records mr
+
+LEFT JOIN public.transcripts t
+    ON mr.interview_id = t.interview_id
+
+LEFT JOIN public.pipeline_events pe
+    ON mr.meeting_id = pe.meeting_record_id
+
+WHERE mr.interview_id = '5062549'
+ORDER BY pe.started_at;
+
+
+
+
+SELECT
     mr.meeting_id,
     mr.completed_at AS meeting_completed_at,
     t.transcript_available_at,
