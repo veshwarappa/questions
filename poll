@@ -13,3 +13,15 @@ select
 from transcripts
 where meeting_id = '<MEETING_ID>';
 
+
+select meeting_id, created_at
+from meeting_records
+where join_url like '%YmQwYTMxNzQzZjQ5YS000...%'
+order by created_at;
+
+select meeting_id, transcript_available_at
+from transcripts
+where join_url like '%YmQwYTMxNzQzZjQ5YS000...%'
+order by transcript_available_at;
+
+
