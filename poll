@@ -1,3 +1,15 @@
 select meeting_date
 from meeting_records
 where meeting_id = '<MEETING_ID>';
+
+select
+  meeting_id,
+  meeting_date,
+  interview_date,
+  start_time,
+  end_time,
+  transcript_available_at,
+  join_url
+from transcripts
+where meeting_id = '<MEETING_ID>';
+
