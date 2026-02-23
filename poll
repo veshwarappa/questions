@@ -83,3 +83,40 @@ where mr.meeting_id = '<MEETING_ID>'
 order by pe.started_at asc;
 
 
+with x as (
+  select
+    step_name,
+    started_at,
+    lag(started_at) over (partition by step_name order by started_at) as prev_started_at
+  from public.pipeline_events
+  where meeting_record_id = '<MEETING_ID>'
+)
+select
+  step_name,
+  started_at,
+  prev_started_at,
+  (started_at - prev_started_at) as gap
+from x
+where prev_started_at is not null
+order by started_at;
+
+
+select
+  mr.region,
+  mr.environment,
+  date(mr.completed_at) as day,
+  count(*) as meetings,
+  percentile_cont(0.5) within group (order by (t.transcript_available_at - mr.completed_at)) as p50_delay,
+  percentile_cont(0.9) within group (order by (t.transcript_available_at - mr.completed_at)) as p90_delay,
+  max(t.transcript_available_at - mr.completed_at) as max_delay
+from public.meeting_records mr
+join public.transcripts t on t.meeting_id = mr.meeting_id
+where mr.region in ('ANZ','AU')
+  and mr.environment = 'PROD'
+  and mr.completed_at >= timestamp '2026-02-18 00:00:00'
+  and mr.completed_at <  timestamp '2026-02-19 00:00:00'
+group by 1,2,3
+order by 3 desc;
+
+
+
