@@ -40,6 +40,7 @@ ORDER BY pe.started_at;
 
 SELECT
     mr.meeting_id,
+    mr.interview_id,
     mr.completed_at AS meeting_completed_at,
     t.transcript_available_at,
     EXTRACT(EPOCH FROM 
@@ -48,4 +49,4 @@ SELECT
 FROM public.meeting_records mr
 LEFT JOIN public.transcripts t
     ON mr.interview_id = t.interview_id
-WHERE mr.meeting_id = '5143669';
+WHERE mr.interview_id = '5143669';
