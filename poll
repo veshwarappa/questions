@@ -1,9 +1,7 @@
 select
-  step_name,
-  started_at,
-  completed_at,
-  duration_seconds,
-  model
-from pipeline_events
-where meeting_record_id = '<MEETING_RECORD_ID>'
-order by started_at;
+  meeting_id,
+  submitted_payload::text
+from public.meeting_records
+where meeting_id = '<MEETING_ID>';
+
+
