@@ -1,16 +1,19 @@
 ContainerAppConsoleLogs_CL
-| where TimeGenerated between (datetime(2026-02-18) .. datetime(2026-02-19))
+| where TimeGenerated between (datetime(2026-02-20) .. datetime(2026-02-21))
+| where Log_s has "JPJPSendCVFeb2026"
+| project TimeGenerated, Log_s
+| order by TimeGenerated desc
+
+
+ContainerAppConsoleLogs_CL
+| where TimeGenerated between (datetime(2026-02-20) .. datetime(2026-02-21))
 | where Log_s has "testcatena"
 | project TimeGenerated, Log_s
 | order by TimeGenerated desc
-| take 1
+
 
 ContainerAppConsoleLogs_CL
-| where TimeGenerated between (datetime(2026-02-18) .. datetime(2026-02-19))
-| where Log_s has "OneTouch" and Log_s has "timed out"
+| where TimeGenerated between (datetime(2026-02-20) .. datetime(2026-02-21))
+| where Log_s has "OneTouch" or Log_s has "timed out"
 | project TimeGenerated, Log_s
 | order by TimeGenerated desc
-| take 1
-
-ContainerAppConsoleLogs_CL
-| getschema
