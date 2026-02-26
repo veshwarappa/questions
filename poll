@@ -2,3 +2,7 @@ ContainerAppConsoleLogs_CL
 | where TimeGenerated between (datetime(2026-02-19 23:00) .. datetime(2026-02-19 23:30))
 | where Log_s has "ReadTimeout"
 | summarize count()
+
+
+The failure occurred due to a ReadTimeout while calling the OneTouch API endpoint. 
+The payload was successfully built and sent, but the external API did not respond within the configured timeout window.
