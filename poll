@@ -1,20 +1,4 @@
 ContainerAppConsoleLogs_CL
-| where TimeGenerated between (datetime(2026-02-19 22:00) .. datetime(2026-02-20 02:00))
-| project TimeGenerated, Log_s
-| order by TimeGenerated desc
-
-
-| take 20
-
-ContainerAppConsoleLogs_CL
-| where TimeGenerated between (datetime(2026-02-19 22:00) .. datetime(2026-02-20 02:00))
-| where Log_s has "JPJPSendCVFeb2026"
-| where Log_s has_any ("timed out", "timeout", "ReadTimeout", "OneTouch", "504", "500", "error", "exception")
-| project TimeGenerated, Log_s
-| order by TimeGenerated desc
-
-ContainerAppConsoleLogs_CL
-| where TimeGenerated between (datetime(2026-02-19 22:00) .. datetime(2026-02-20 02:00))
-| where Log_s has "JPJPSendCVFeb2026"
-| project TimeGenerated, Log_s
-| order by TimeGenerated asc
+| where TimeGenerated between (datetime(2026-02-19 23:00) .. datetime(2026-02-19 23:30))
+| where Log_s has "ReadTimeout"
+| summarize count()
