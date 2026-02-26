@@ -1,7 +1,11 @@
-select
-  meeting_id,
-  submitted_payload::text
-from public.meeting_records
-where meeting_id = '<MEETING_ID>';
-
-
+SELECT 
+    id,
+    error_type,
+    error_category,
+    error_code,
+    error_message,
+    step_name,
+    occurred_at
+FROM public.errors
+WHERE meeting_record_id = 'PUT_MEETING_ID_HERE'
+ORDER BY occurred_at DESC;
