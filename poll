@@ -1,12 +1,8 @@
-The delay was caused by Microsoft Teams’ asynchronous transcript finalization process. After the meeting ended, Teams took approximately 55 minutes to process and make the transcript available via Microsoft Graph.
+Microsoft Teams generates transcripts asynchronously after a meeting ends. Once recording stops, Teams performs backend processing that includes audio ingestion, 
+speech-to-text conversion, transcript formatting, storage, and publishing through Microsoft Graph APIs. 
+The transcript is not accessible to external systems until this internal processing is fully completed. 
+The duration of this process can vary depending on factors such as Microsoft service load, regional processing queues, recording size, 
+and backend resource allocation.
 
-The actual meeting start and end time (09:58 AM – 10:00 AM Sydney time) was confirmed by Priyanka and validated using the Teams recording timeline. Recording stopped at 10:00 AM, and the transcript became available in our system at approximately 10:55–10:56 AM Sydney time.
-
-Our system processed the transcript immediately once it became available and completed successfully without any delays or errors.
-
-There were no internal bottlenecks or failures observed. The only time gap occurred between recording stop and transcript availability, confirming that the delay originated upstream within Microsoft Teams’ infrastructure.
-
-Conclusion
-
-The transcript delay was not caused by our pipeline.
-It was due to Microsoft Teams’ transcript finalization latency, which is outside our system’s control.
+The transcript delay was not caused by our pipeline. 
+It was due to Microsoft Teams’ upstream transcript finalization latency, which occurs within Microsoft’s infrastructure and is outside our system’s control.
