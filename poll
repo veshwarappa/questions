@@ -1,31 +1,16 @@
-union traces, exceptions
-| where timestamp between (datetime(2026-02-18) .. datetime(2026-02-19))
-| where message has "testcatena" 
-   or message has "Internal Interview"
-   or message has "OneTouch API request timed out"
-| project timestamp, operation_Id, severityLevel, message, outerMessage, problemId
-| order by timestamp desc
-
-
-union traces, exceptions
-| where timestamp between (datetime(2026-02-18) .. datetime(2026-02-19))
-| where message has "testcatena"
-| project timestamp, message, operation_Id, severityLevel
-| order by timestamp desc
+ContainerAppConsoleLogs_CL
+| where TimeGenerated between (datetime(2026-02-18) .. datetime(2026-02-19))
+| where Log_s has "testcatena"
+| project TimeGenerated, Log_s
+| order by TimeGenerated desc
 | take 1
 
-
-union traces, exceptions
-| where timestamp between (datetime(2026-02-18) .. datetime(2026-02-19))
-| where message has "Internal Interview"
-| project timestamp, message, operation_Id
-| order by timestamp desc
+ContainerAppConsoleLogs_CL
+| where TimeGenerated between (datetime(2026-02-18) .. datetime(2026-02-19))
+| where Log_s has "OneTouch" and Log_s has "timed out"
+| project TimeGenerated, Log_s
+| order by TimeGenerated desc
 | take 1
 
-
-union traces, exceptions
-| where timestamp between (datetime(2026-02-18) .. datetime(2026-02-19))
-| where message has "OneTouch"
-| project timestamp, message, operation_Id
-| order by timestamp desc
-| take 1
+ContainerAppConsoleLogs_CL
+| getschema
