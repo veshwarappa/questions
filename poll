@@ -6,3 +6,7 @@ and backend resource allocation.
 
 The transcript delay was not caused by our pipeline. 
 It was due to Microsoft Teams’ upstream transcript finalization latency, which occurs within Microsoft’s infrastructure and is outside our system’s control.
+
+Microsoft Teams generates transcripts asynchronously after a meeting ends. 
+The transcript is only exposed via Microsoft Graph once Microsoft completes its internal processing (audio processing and speech-to-text conversion). 
+In this case, that finalization took ~55 minutes.
