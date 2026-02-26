@@ -1,3 +1,9 @@
+The actual meeting time (09:58 AM – 10:00 AM Sydney) was confirmed by Priyanka via the Teams recording timeline. The recording stopped at 10:00 AM.
+
+The transcript became available in our system at approximately 10:55–10:56 AM Sydney time. 
+Once available, our pipeline processed it immediately without any errors or delays.
+
+
 Microsoft Teams generates transcripts asynchronously after a meeting ends. Once recording stops, Teams performs backend processing that includes audio ingestion, 
 speech-to-text conversion, transcript formatting, storage, and publishing through Microsoft Graph APIs. 
 The transcript is not accessible to external systems until this internal processing is fully completed. 
