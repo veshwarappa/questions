@@ -1,8 +1,10 @@
-ContainerAppConsoleLogs_CL
-| where TimeGenerated between (datetime(2026-02-19 23:00) .. datetime(2026-02-19 23:30))
-| where Log_s has "ReadTimeout"
-| summarize count()
+The delay was caused by Microsoft Teams’ asynchronous transcript finalization process. After the meeting ended, Teams took approximately 55 minutes to process and make the transcript available via Microsoft Graph.
 
+Our system began processing immediately once the transcript became available and completed successfully without any delays or errors.
 
-The failure occurred due to a ReadTimeout while calling the OneTouch API endpoint. 
-The payload was successfully built and sent, but the external API did not respond within the configured timeout window.
+There were no internal bottlenecks or failures. The only time gap occurred between recording stop and transcript availability, confirming the delay originated upstream on Microsoft Teams’ infrastructure.
+
+Conclusion
+
+The transcript delay was not caused by our pipeline.
+It was due to Microsoft Teams’ transcript finalization latency, which is outside our system’s control.
