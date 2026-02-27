@@ -1,9 +1,21 @@
-SELECT meeting_id, subject, created_at, event_date
-FROM public.meeting_records
-WHERE subject ILIKE '%testbec journal entry%'
-ORDER BY created_at DESC;
+ContainerAppConsoleLogs_CL
+| where TimeGenerated between (datetime(2026-02-18T22:30:00Z) .. datetime(2026-02-18T23:00:00Z))
+| project TimeGenerated, Log_s
+| order by TimeGenerated asc
 
-SELECT meeting_id, subject, created_at
-FROM public.meeting_records
-WHERE subject = 'Internal Interview : testbec journal entry'
-ORDER BY created_at DESC;
+ContainerAppConsoleLogs_CL
+| where TimeGenerated between (datetime(2026-02-18T22:30:00Z) .. datetime(2026-02-18T23:00:00Z))
+| where Log_s has "AAMkADAYW"
+| project TimeGenerated, Log_s
+| order by TimeGenerated asc
+
+ContainerAppConsoleLogs_CL
+| where TimeGenerated between (datetime(2026-02-18T11:30:00Z) .. datetime(2026-02-18T12:00:00Z))
+| project TimeGenerated, Log_s
+| order by TimeGenerated asc
+
+ContainerAppConsoleLogs_CL
+| where TimeGenerated between (datetime(2026-02-18T00:00:00Z) .. datetime(2026-02-19T00:00:00Z))
+| where Log_s has "AAMkADAYW"
+| project TimeGenerated, Log_s
+| order by TimeGenerated asc
