@@ -1,7 +1,7 @@
 ContainerAppConsoleLogs_CL
-| where Log_s has "VGhlIGNhbmRpZGF0ZS"
-| order by TimeGenerated desc
-
+| where TimeGenerated between (datetime(2026-02-18T17:30:00Z) .. datetime(2026-02-18T19:00:00Z))
+| where Log_s has "restrictionNotes" or Log_s has "testbec" or Log_s has "VGhlIGNhbmRpZGF0ZS"
+| order by TimeGenerated asc
 
 ContainerAppConsoleLogs_CL
 | where Log_s has "difficulty climbing stairs"
