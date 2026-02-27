@@ -1,49 +1,36 @@
+let t = datetime(2026-02-19T02:51:20Z);
 ContainerAppConsoleLogs_CL
-| where TimeGenerated between (datetime(2026-02-18T00:00:00Z) .. datetime(2026-02-19T00:00:00Z))
-| where Log_s has "AAMkADAyYWI5Nj"
+| where TimeGenerated between (t - 20m .. t + 20m)
 | project TimeGenerated, Log_s
 | order by TimeGenerated asc
 
 
+let t = datetime(2026-02-19T02:51:20Z);
 ContainerAppConsoleLogs_CL
-| where TimeGenerated between (datetime(2026-02-18T22:20:00Z) .. datetime(2026-02-18T23:10:00Z))
-| where Log_s has "AAMkADAyYWI5Nj"
+| where TimeGenerated between (t - 20m .. t + 20m)
+| where Log_s has "\"POST" or Log_s has "\"PUT" or Log_s has "\"PATCH"
 | project TimeGenerated, Log_s
 | order by TimeGenerated asc
 
+let t = datetime(2026-02-19T02:51:20Z);
 ContainerAppConsoleLogs_CL
-| where TimeGenerated between (datetime(2026-02-18T22:20:00Z) .. datetime(2026-02-18T23:10:00Z))
-| where Log_s has "\"GET" or Log_s has "\"POST" or Log_s has "\"PUT" or Log_s has "\"PATCH"
-| where Log_s has "AAMkADAyYWI5Nj"
+| where TimeGenerated between (t - 20m .. t + 20m)
+| where Log_s has "/meetings/" or Log_s has "/feedback/" or Log_s has "/candidates/"
 | project TimeGenerated, Log_s
 | order by TimeGenerated asc
 
+let t = datetime(2026-02-19T02:51:20Z);
 ContainerAppConsoleLogs_CL
-| where TimeGenerated between (datetime(2026-02-18T22:20:00Z) .. datetime(2026-02-18T23:10:00Z))
-| where Log_s has "/candidates/" and Log_s has "meeting_id=" and Log_s has "AAMkADAyYWI5Nj"
-| project TimeGenerated, Log_s
-| order by TimeGenerated asc
-
-
-ContainerAppConsoleLogs_CL
-| where TimeGenerated between (datetime(2026-02-18T22:20:00Z) .. datetime(2026-02-18T23:10:00Z))
-| where Log_s has "/feedback/" and Log_s has "AAMkADAyYWI5Nj"
-| project TimeGenerated, Log_s
-| order by TimeGenerated asc
-
-ContainerAppConsoleLogs_CL
-| where TimeGenerated between (datetime(2026-02-18T22:20:00Z) .. datetime(2026-02-18T23:10:00Z))
-| where Log_s has "AAMkADAyYWI5Nj"
-| where Log_s has "submit" or Log_s has "payload" or Log_s has "restriction" or Log_s has "restrictionNotes" or Log_s has "OneTouch" or Log_s has "OT"
+| where TimeGenerated between (t - 20m .. t + 20m)
+| where Log_s has "5142193"
 | project TimeGenerated, Log_s
 | order by TimeGenerated asc
 
 SELECT
-  meeting_id,
   payload_submitted_at,
-  (submitted_payload::jsonb ? 'restrictionNotes') AS has_restrictionNotes,
-  submitted_payload::jsonb ->> 'restrictionNotes' AS restrictionNotes_value
+  submitted_payload::jsonb ->> 'restrictionNotes' AS restriction_notes_b64,
+  length(submitted_payload::jsonb ->> 'restrictionNotes') AS b64_len
 FROM public.meeting_records
-WHERE meeting_id = '<FULL_MEETING_ID>'
+WHERE meeting_id = '<MEETING_ID>'
 ORDER BY payload_submitted_at DESC
-LIMIT 10;
+LIMIT 20;
