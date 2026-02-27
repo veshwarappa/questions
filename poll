@@ -1,36 +1,6 @@
-let t = datetime(2026-02-19T02:51:20Z);
-ContainerAppConsoleLogs_CL
-| where TimeGenerated between (t - 20m .. t + 20m)
-| project TimeGenerated, Log_s
-| order by TimeGenerated asc
-
-
-let t = datetime(2026-02-19T02:51:20Z);
-ContainerAppConsoleLogs_CL
-| where TimeGenerated between (t - 20m .. t + 20m)
-| where Log_s has "\"POST" or Log_s has "\"PUT" or Log_s has "\"PATCH"
-| project TimeGenerated, Log_s
-| order by TimeGenerated asc
-
-let t = datetime(2026-02-19T02:51:20Z);
-ContainerAppConsoleLogs_CL
-| where TimeGenerated between (t - 20m .. t + 20m)
-| where Log_s has "/meetings/" or Log_s has "/feedback/" or Log_s has "/candidates/"
-| project TimeGenerated, Log_s
-| order by TimeGenerated asc
-
-let t = datetime(2026-02-19T02:51:20Z);
-ContainerAppConsoleLogs_CL
-| where TimeGenerated between (t - 20m .. t + 20m)
-| where Log_s has "5142193"
-| project TimeGenerated, Log_s
-| order by TimeGenerated asc
-
 SELECT
   payload_submitted_at,
-  submitted_payload::jsonb ->> 'restrictionNotes' AS restriction_notes_b64,
-  length(submitted_payload::jsonb ->> 'restrictionNotes') AS b64_len
+  submitted_payload::jsonb ->> 'restrictionNotes' AS restriction_notes_b64
 FROM public.meeting_records
 WHERE meeting_id = '<MEETING_ID>'
-ORDER BY payload_submitted_at DESC
-LIMIT 20;
+ORDER BY payload_submitted_at ASC;
