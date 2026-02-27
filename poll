@@ -1,18 +1,22 @@
-The actual meeting time (09:58 AM – 10:00 AM Sydney) was confirmed by Priyanka via the Teams recording timeline. The recording stopped at 10:00 AM.
+Hi [Manager Name],
 
-The transcript became available in our system at approximately 10:55–10:56 AM Sydney time. 
-Once available, our pipeline processed it immediately without any errors or delays.
+I have completed the investigation into the failure for the meeting submission titled “Internal Interview : testcatena JPJPSendCVFeb2026”.
 
+Based on Azure container logs (UTC timestamp 19/02/2026 23:07), the payload was successfully built and the request was sent to the OneTouch endpoint. However, the request failed with a ReadTimeout exception. This indicates that the OneTouch API did not respond within the configured timeout window.
 
-Microsoft Teams generates transcripts asynchronously after a meeting ends. Once recording stops, Teams performs backend processing that includes audio ingestion, 
-speech-to-text conversion, transcript formatting, storage, and publishing through Microsoft Graph APIs. 
-The transcript is not accessible to external systems until this internal processing is fully completed. 
-The duration of this process can vary depending on factors such as Microsoft service load, regional processing queues, recording size, 
-and backend resource allocation.
+Current Findings:
 
-The transcript delay was not caused by our pipeline. 
-It was due to Microsoft Teams’ upstream transcript finalization latency, which occurs within Microsoft’s infrastructure and is outside our system’s control.
+The OneTouch client timeout is set to 10 seconds.
 
-Microsoft Teams generates transcripts asynchronously after a meeting ends. 
-The transcript is only exposed via Microsoft Graph once Microsoft completes its internal processing (audio processing and speech-to-text conversion). 
-In this case, that finalization took ~55 minutes.
+The request exceeded this limit and triggered a ReadTimeout.
+
+The failure occurred after payload construction, confirming this is not a data or validation issue.
+
+The issue appears to be related to external API latency rather than internal application logic.
+
+Recommended Actions:
+
+Increase the OneTouch API timeout from 10 seconds to 30 seconds.
+At this stage, the root cause is an external dependency timeout rather than an application defect.
+
+Please let me know if you would like this implemented under a change request or further analysis performed.
