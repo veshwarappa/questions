@@ -1,42 +1,12 @@
-Here is a clear and concise version you can send:
+The Problem
+The !== undefined check means: if the value is undefined, the field is completely omitted from the payload.
+When a consultant "removes" restriction notes in the UI, the value likely becomes undefined. So:
+The field gets excluded from the payload entirely
+OT never receives an instruction to clear the notes
+OT then falls back to the source/original data which still has the notes → they appear in OT
+This explains both scenarios:
+No existing notes in OT → OT creates from source data, which still has the notes (bug)
+Existing notes in OT → OT keeps what it already has, which may already be correct
 
-Hi [Manager Name],
-
-I’ve completed the investigation into the issue where restriction notes were still appearing in OneTouch (OT) after being removed in the UI.
-
-**Root Cause**
-
-In the frontend payload builder, restriction notes are only included if the value is not `undefined`:
-
-```typescript
-if (options?.restrictionNotesOriginal !== undefined) {
-  payload.restrictionNotesOriginal = options.restrictionNotesOriginal;
-}
-```
-
-When a consultant removes restriction notes in the UI, the value becomes `undefined`. Because of the `!== undefined` check, the field is omitted from the payload entirely.
-
-As a result:
-
-* OT does not receive any instruction to clear the field.
-* OT retains the existing restriction notes (or repopulates from source data).
-* Our backend stores and submits the previous base64-encoded value again.
-
-This explains why restriction notes continue to appear even after being removed.
-
-**Proposed Fix**
-
-Update the UI logic so that when restriction notes are cleared, the value is explicitly set to an empty string (`""`) instead of `undefined`.
-
-This ensures:
-
-* The field is included in the payload.
-* OT receives an explicit instruction to clear the notes.
-* The old value is not re-used or persisted.
-
-I will proceed with implementing and testing this change unless you would like to review further.
-
-Regards,
-[Your Name]
-
-If you'd like, I can also draft a shorter executive summary version.
+fix it at the UI/component level — when the user removes notes, set the value to "" (empty string) instead of undefined, 
+so it passes the existing check and sends the empty value to OT.
