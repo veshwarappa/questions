@@ -1,5 +1,49 @@
 ContainerAppConsoleLogs_CL
 | where TimeGenerated between (datetime(2026-02-18T00:00:00Z) .. datetime(2026-02-19T00:00:00Z))
-| where Log_s has "/meetings/AAMkADAyYWI5"
+| where Log_s has "AAMkADAyYWI5Nj"
 | project TimeGenerated, Log_s
 | order by TimeGenerated asc
+
+
+ContainerAppConsoleLogs_CL
+| where TimeGenerated between (datetime(2026-02-18T22:20:00Z) .. datetime(2026-02-18T23:10:00Z))
+| where Log_s has "AAMkADAyYWI5Nj"
+| project TimeGenerated, Log_s
+| order by TimeGenerated asc
+
+ContainerAppConsoleLogs_CL
+| where TimeGenerated between (datetime(2026-02-18T22:20:00Z) .. datetime(2026-02-18T23:10:00Z))
+| where Log_s has "\"GET" or Log_s has "\"POST" or Log_s has "\"PUT" or Log_s has "\"PATCH"
+| where Log_s has "AAMkADAyYWI5Nj"
+| project TimeGenerated, Log_s
+| order by TimeGenerated asc
+
+ContainerAppConsoleLogs_CL
+| where TimeGenerated between (datetime(2026-02-18T22:20:00Z) .. datetime(2026-02-18T23:10:00Z))
+| where Log_s has "/candidates/" and Log_s has "meeting_id=" and Log_s has "AAMkADAyYWI5Nj"
+| project TimeGenerated, Log_s
+| order by TimeGenerated asc
+
+
+ContainerAppConsoleLogs_CL
+| where TimeGenerated between (datetime(2026-02-18T22:20:00Z) .. datetime(2026-02-18T23:10:00Z))
+| where Log_s has "/feedback/" and Log_s has "AAMkADAyYWI5Nj"
+| project TimeGenerated, Log_s
+| order by TimeGenerated asc
+
+ContainerAppConsoleLogs_CL
+| where TimeGenerated between (datetime(2026-02-18T22:20:00Z) .. datetime(2026-02-18T23:10:00Z))
+| where Log_s has "AAMkADAyYWI5Nj"
+| where Log_s has "submit" or Log_s has "payload" or Log_s has "restriction" or Log_s has "restrictionNotes" or Log_s has "OneTouch" or Log_s has "OT"
+| project TimeGenerated, Log_s
+| order by TimeGenerated asc
+
+SELECT
+  meeting_id,
+  payload_submitted_at,
+  (submitted_payload::jsonb ? 'restrictionNotes') AS has_restrictionNotes,
+  submitted_payload::jsonb ->> 'restrictionNotes' AS restrictionNotes_value
+FROM public.meeting_records
+WHERE meeting_id = '<FULL_MEETING_ID>'
+ORDER BY payload_submitted_at DESC
+LIMIT 10;
