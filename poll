@@ -1,8 +1,19 @@
-To mitigate this issue, I recommend increasing the OneTouch client timeout from 10 seconds to 30 seconds to better accommodate potential latency from the 
-external API and monitoring the behavior after deployment. If similar timeouts continue, we can implement limited retry logic (2–3 attempts with exponential 
-backoff) to handle transient failures more gracefully. This approach should reduce user-facing failures while maintaining system stability.
+ContainerAppConsoleLogs_CL
+| where Log_s has "VGhlIGNhbmRpZGF0ZS"
+| order by TimeGenerated desc
 
-Based on the above analysis, the incident was caused by an external OneTouch API timeout rather than an internal application defect. 
-I recommend increasing the configured timeout and monitoring for recurrence, with retry logic to be considered if similar transient failures continue. 
-Please let me know if you would like any additional details included or if further investigation is required.
 
+ContainerAppConsoleLogs_CL
+| where Log_s has "difficulty climbing stairs"
+| order by TimeGenerated desc
+
+ContainerAppConsoleLogs_CL
+| where Log_s has "restrictionNotes"
+| order by TimeGenerated desc
+
+| where Log_s has "Restriction"
+
+let t = datetime(2026-02-20T10:15:00Z);   // replace with actual timestamp
+ContainerAppConsoleLogs_CL
+| where TimeGenerated between (t - 5m .. t + 5m)
+| order by TimeGenerated asc
