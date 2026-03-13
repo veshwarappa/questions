@@ -1,210 +1,102 @@
-1. Problem statement
+SELECT
+    run_id,
+    desk_id,
+    workflow_type,
+    status,
+    started_at,
+    completed_at,
+    total_duration_seconds,
+    total_cost_usd,
+    error_message,
+    metadata
+FROM workflow_runs
+ORDER BY started_at DESC
+LIMIT 20;
+
+
+SELECT
+    run_id,
+    desk_id,
+    workflow_type,
+    status,
+    started_at,
+    completed_at,
+    total_duration_seconds,
+    total_cost_usd,
+    error_message
+FROM workflow_runs
+WHERE desk_id = '<DESK_ID>'
+ORDER BY started_at DESC
+LIMIT 20;
+
+
+SELECT
+    step_id,
+    run_id,
+    desk_id,
+    step_name,
+    step_order,
+    started_at,
+    completed_at,
+    duration_seconds,
+    cost_usd,
+    status,
+    tokens_used,
+    items_processed,
+    metadata
+FROM workflow_steps
+WHERE run_id = '<RUN_ID>'
+ORDER BY step_order ASC;
+
+
+SELECT
+    run_id,
+    desk_id,
+    workflow_type,
+    status,
+    started_at,
+    completed_at,
+    error_message
+FROM workflow_runs
+WHERE status = 'failed'
+ORDER BY started_at DESC
+LIMIT 20;
+
+SELECT
+    step_id,
+    run_id,
+    desk_id,
+    step_name,
+    step_order,
+    status,
+    started_at,
+    completed_at,
+    metadata
+FROM workflow_steps
+WHERE status = 'failed'
+ORDER BY started_at DESC
+LIMIT 20;
+
+SELECT
+    wr.run_id,
+    wr.desk_id,
+    wr.workflow_type,
+    wr.status AS run_status,
+    wr.started_at AS run_started_at,
+    wr.completed_at AS run_completed_at,
+    wr.error_message,
+    ws.step_id,
+    ws.step_name,
+    ws.step_order,
+    ws.status AS step_status,
+    ws.started_at AS step_started_at,
+    ws.completed_at AS step_completed_at,
+    ws.duration_seconds,
+    ws.items_processed,
+    ws.metadata AS step_metadata
+FROM workflow_runs wr
+LEFT JOIN workflow_steps ws
+    ON wr.run_id = ws.run_id
+WHERE wr.desk_id = '<DESK_ID>'
+ORDER BY wr.started_at DESC, ws.step_order ASC;
 
-Write this first.
-
-Use something like:
-
-We need a scalable way to manage agent configuration across regions/countries, including routing changes such as moving a country from OT1 to OT26 without requiring repeated code changes or manual per-country redeployments.
-
-That frames the purpose clearly.
-
-2. Option 1 — MCP Server approach
-
-Use your senior’s reference directly and expand it in a controlled way.
-
-What it is
-
-A centralized configuration service hosted in Azure that stores agent configuration, country mapping, CRM routing rules, and environment-specific settings. Agents query the MCP service at runtime or startup to determine the correct configuration.
-
-Azure resources needed
-
-From your senior’s notes:
-
-Azure Container Apps — host the MCP server
-
-Azure Cosmos DB — store agent configs and routing rules
-
-Azure Key Vault — secrets/credentials
-
-Private Endpoints — private access within VNet
-
-You can also reasonably mention:
-
-Private DNS for private endpoint name resolution
-
-Application Insights / Log Analytics for monitoring
-
-Managed Identity for secure access from Container Apps to Key Vault/Cosmos
-
-Those are normal supporting services. Do not invent anything more exotic.
-
-How it works
-
-Keep it simple:
-
-Agent starts in a region
-
-Agent calls MCP service
-
-MCP reads config from Cosmos DB
-
-MCP returns country/CRM routing config
-
-Agent uses returned config to connect to the correct downstream system
-
-Changes like OT1 → OT26 are done by updating a config record, not redeploying the agent
-
-Advantages
-
-centralized control
-
-faster country cutover
-
-fewer redeployments
-
-better consistency across regions
-
-easier governance and audit of config changes
-
-cleaner long-term scaling if number of countries grows
-
-Risks / concerns
-
-introduces a new platform component
-
-needs high availability and support ownership
-
-runtime dependency on MCP service
-
-more infra than static config files
-
-security and latency design must be done carefully
-
-requires clear fallback behavior if MCP is unavailable
-
-3. Option 2 — In-country config files approach
-What it is
-
-Each country/region keeps its own configuration in files or environment-specific deployment config. Routing logic is managed locally per deployment.
-
-How it works
-
-Agent is deployed with region/country config
-
-Config file determines CRM routing and settings
-
-To move a country from OT1 to OT26, config must be changed in that country/environment and redeployed or re-released depending on implementation
-
-Likely storage patterns
-
-You can mention these at high level:
-
-config files packaged with deployment
-
-config per environment in pipeline/release variables
-
-config stored per region in storage/repo
-
-Do not go too deep unless they ask.
-
-Advantages
-
-simpler initial setup
-
-no new shared runtime service
-
-lower infra footprint
-
-easier to understand for teams used to static deployments
-
-Risks / concerns
-
-harder to scale across many countries
-
-more manual operational work
-
-higher chance of config drift between regions
-
-cutovers are slower and more error-prone
-
-governance/audit can become fragmented
-
-repeated redeployments may be needed
-
-4. Head-to-head comparison table
-
-Use something like this in your proposal:
-
-Area	MCP Server	In-country config files
-Scalability	Strong	Weak to moderate
-Operational effort	Lower after setup	Higher over time
-Change speed	Fast	Slower
-Infra complexity	Higher	Lower
-Governance	Strong centralized control	Distributed and inconsistent
-Runtime dependency	Yes	No shared runtime dependency
-Best for	Multi-country scale	Small/simple deployments
-
-That table is probably the most useful single slide.
-
-5. Recommendation
-
-Based on what your manager wrote, the likely direction is:
-
-the architect forum wants both options reviewed
-
-but the MCP approach is the stronger strategic option if the platform is expected to scale across multiple countries and frequent routing changes
-
-So your recommendation can be balanced:
-
-For short-term simplicity, country-based config files are easier to implement.
-For medium- to long-term scale, centralized configuration through an MCP server is the stronger architecture because it reduces redeployments, improves governance, and supports faster routing changes such as country cutovers.
-
-Then add:
-
-A final decision depends on acceptable operational complexity, resilience expectations, and whether the additional MCP infrastructure can be included in the infra build request.
-
-That keeps you safe and credible.
-
-6. Open design questions to take to architecture review
-
-Add a final section with questions. This makes you look thoughtful and stops people from asking “what have you assumed?”
-
-Use questions like:
-
-Should agents fetch config at startup only, or dynamically during runtime?
-
-What is the fallback if MCP is unavailable?
-
-Is config global or region-local?
-
-What data is stored in Cosmos DB, and is any of it sensitive?
-
-Do we need active-active or zone-redundant MCP deployment?
-
-Who owns config governance and approval?
-
-Is audit/history of config changes required?
-
-Does private connectivity need to be enforced for all components?
-
-These are exactly the right level for an architecture forum.
-
-What your document can look like
-
-You can make it as a short note or 5–6 slides.
-
-Suggested slide flow
-
-Problem / need
-
-Option 1: MCP server
-
-Option 2: country config files
-
-Comparison
-
-Recommendation
-
-Open questions / next steps
-
-That matches your manager’s “high level with pictures” request.
