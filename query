@@ -100,3 +100,30 @@ LEFT JOIN workflow_steps ws
 WHERE wr.desk_id = '<DESK_ID>'
 ORDER BY wr.started_at DESC, ws.step_order ASC;
 
+SELECT
+    run_id,
+    desk_id,
+    workflow_type,
+    status,
+    started_at,
+    completed_at,
+    error_message
+FROM workflow_runs
+WHERE status = 'failed'
+ORDER BY started_at DESC
+LIMIT 20;
+
+SELECT
+    step_id,
+    run_id,
+    step_name,
+    step_order,
+    status,
+    started_at,
+    completed_at,
+    duration_seconds,
+    metadata
+FROM workflow_steps
+WHERE run_id = '<RUN_ID>'
+ORDER BY step_order ASC;
+
