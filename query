@@ -5,49 +5,11 @@ SELECT
     status,
     started_at,
     completed_at,
-    total_duration_seconds,
-    total_cost_usd,
-    error_message,
-    metadata
-FROM workflow_runs
-ORDER BY started_at DESC
-LIMIT 20;
-
-
-SELECT
-    run_id,
-    desk_id,
-    workflow_type,
-    status,
-    started_at,
-    completed_at,
-    total_duration_seconds,
-    total_cost_usd,
     error_message
 FROM workflow_runs
-WHERE desk_id = '<DESK_ID>'
-ORDER BY started_at DESC
-LIMIT 20;
-
-
-SELECT
-    step_id,
-    run_id,
-    desk_id,
-    step_name,
-    step_order,
-    started_at,
-    completed_at,
-    duration_seconds,
-    cost_usd,
-    status,
-    tokens_used,
-    items_processed,
-    metadata
-FROM workflow_steps
-WHERE run_id = '<RUN_ID>'
-ORDER BY step_order ASC;
-
+WHERE started_at >= '2026-03-02 00:00:00'
+AND started_at < '2026-03-03 00:00:00'
+ORDER BY started_at;
 
 SELECT
     run_id,
@@ -58,47 +20,10 @@ SELECT
     completed_at,
     error_message
 FROM workflow_runs
-WHERE status = 'failed'
-ORDER BY started_at DESC
-LIMIT 20;
-
-SELECT
-    step_id,
-    run_id,
-    desk_id,
-    step_name,
-    step_order,
-    status,
-    started_at,
-    completed_at,
-    metadata
-FROM workflow_steps
-WHERE status = 'failed'
-ORDER BY started_at DESC
-LIMIT 20;
-
-SELECT
-    wr.run_id,
-    wr.desk_id,
-    wr.workflow_type,
-    wr.status AS run_status,
-    wr.started_at AS run_started_at,
-    wr.completed_at AS run_completed_at,
-    wr.error_message,
-    ws.step_id,
-    ws.step_name,
-    ws.step_order,
-    ws.status AS step_status,
-    ws.started_at AS step_started_at,
-    ws.completed_at AS step_completed_at,
-    ws.duration_seconds,
-    ws.items_processed,
-    ws.metadata AS step_metadata
-FROM workflow_runs wr
-LEFT JOIN workflow_steps ws
-    ON wr.run_id = ws.run_id
-WHERE wr.desk_id = '<DESK_ID>'
-ORDER BY wr.started_at DESC, ws.step_order ASC;
+WHERE started_at >= '2026-03-02 00:00:00'
+AND started_at < '2026-03-03 00:00:00'
+AND status = 'failed'
+ORDER BY started_at;
 
 SELECT
     run_id,
@@ -106,24 +31,8 @@ SELECT
     workflow_type,
     status,
     started_at,
-    completed_at,
-    error_message
+    completed_at
 FROM workflow_runs
-WHERE status = 'failed'
-ORDER BY started_at DESC
-LIMIT 20;
-
-SELECT
-    step_id,
-    run_id,
-    step_name,
-    step_order,
-    status,
-    started_at,
-    completed_at,
-    duration_seconds,
-    metadata
-FROM workflow_steps
-WHERE run_id = '<RUN_ID>'
-ORDER BY step_order ASC;
-
+WHERE started_at BETWEEN '2026-03-01 00:00:00'
+AND '2026-03-03 00:00:00'
+ORDER BY started_at;
