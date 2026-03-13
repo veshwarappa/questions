@@ -1,38 +1,36 @@
 SELECT
     run_id,
     desk_id,
-    workflow_type,
     status,
-    started_at,
-    completed_at,
-    error_message
+    error_message,
+    jsonb_pretty(metadata::jsonb) AS metadata_pretty
 FROM workflow_runs
-WHERE started_at >= '2026-03-02 00:00:00'
-AND started_at < '2026-03-03 00:00:00'
-ORDER BY started_at;
+WHERE run_id = 'e2db07e5-988a-4887-9611-1e83473aa36d';
+
 
 SELECT
     run_id,
-    desk_id,
-    workflow_type,
-    status,
-    started_at,
-    completed_at,
-    error_message
+    metadata::text
 FROM workflow_runs
-WHERE started_at >= '2026-03-02 00:00:00'
-AND started_at < '2026-03-03 00:00:00'
-AND status = 'failed'
-ORDER BY started_at;
+WHERE run_id = 'e2db07e5-988a-4887-9611-1e83473aa36d';
 
 SELECT
     run_id,
-    desk_id,
-    workflow_type,
-    status,
-    started_at,
-    completed_at
+    error_message,
+    metadata::text
 FROM workflow_runs
-WHERE started_at BETWEEN '2026-03-01 00:00:00'
-AND '2026-03-03 00:00:00'
-ORDER BY started_at;
+WHERE run_id = 'e2db07e5-988a-4887-9611-1e83473aa36d'
+AND (
+    metadata::text ILIKE '%prompt%'
+    OR metadata::text ILIKE '%response%'
+    OR metadata::text ILIKE '%json%'
+    OR metadata::text ILIKE '%parse%'
+    OR metadata::text ILIKE '%insight%'
+    OR metadata::text ILIKE '%article%'
+);
+
+
+SELECT *
+FROM error_logs
+WHERE run_id = 'e2db07e5-988a-4887-9611-1e83473aa36d'
+ORDER BY created_at;
