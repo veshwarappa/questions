@@ -1,49 +1,115 @@
 select
     meeting_id,
     subject,
+    interviewee_email,
+    start_date,
+    start_time,
+    end_time,
+    meeting_date,
+    interview_date,
+    numerical_meeting_id,
+    contact_id,
+    candidate_id,
     processed,
     created_at,
     transcript_available_at,
-    last_checked_at,
     retry_count,
-    max_retries,
-    case
-        when transcript is null then 'NULL'
-        when length(trim(transcript)) = 0 then 'EMPTY'
-        else 'PRESENT'
-    end as transcript_status
+    max_retries
 from transcripts
-where meeting_id = '<meeting_id>';
+where lower(subject) like '%kelly daly%'
+   or lower(subject) like '%st vincent%'
+order by created_at desc;
 
 select
     meeting_id,
+    subject,
+    interviewee_email,
+    start_time,
+    end_time,
+    event_date,
+    numerical_meeting_id,
+    contact_id,
+    candidate_id,
     processing_state,
     created_at,
     completed_at,
-    payload_submitted_at,
-    case
-        when submitted_payload is null then 'NULL'
-        else 'PRESENT'
-    end as submitted_payload_status
+    payload_submitted_at
 from meeting_records
-where meeting_id = '<meeting_id>';
-
-
+where lower(subject) like '%kelly daly%'
+   or lower(subject) like '%st vincent%'
+order by created_at desc;
 
 select
-    meeting_record_id,
-    step_name,
-    step_type,
-    status,
-    started_at,
-    completed_at,
-    duration_seconds,
-    model,
-    provider,
-    input_tokens,
-    output_tokens,
-    total_cost_usd,
-    step_metadata
-from pipeline_events
-where meeting_record_id = '<meeting_id>'
-order by started_at asc;
+    'transcripts' as source,
+    meeting_id,
+    subject,
+    interviewee_email,
+    created_at
+from transcripts
+where lower(interviewee_email) like '%rebecca%'
+
+union all
+
+select
+    'meeting_records' as source,
+    meeting_id,
+    subject,
+    interviewee_email,
+    created_at
+from meeting_records
+where lower(interviewee_email) like '%rebecca%'
+order by created_at desc;
+
+select
+    'transcripts' as source,
+    meeting_id,
+    subject,
+    start_date,
+    start_time,
+    end_time,
+    meeting_date,
+    created_at
+from transcripts
+where coalesce(start_date, '') like '%2026%'
+   or coalesce(meeting_date, '') like '%2026%'
+   or coalesce(start_time, '') like '%2:00%'
+   or coalesce(end_time, '') like '%3:00%'
+
+union all
+
+select
+    'meeting_records' as source,
+    meeting_id,
+    subject,
+    event_date as start_date,
+    start_time,
+    end_time,
+    event_date as meeting_date,
+    created_at
+from meeting_records
+where coalesce(event_date, '') like '%2026%'
+   or coalesce(start_time, '') like '%2:00%'
+   or coalesce(end_time, '') like '%3:00%'
+order by created_at desc;
+
+select
+    'transcripts' as source,
+    meeting_id,
+    numerical_meeting_id,
+    subject,
+    created_at
+from transcripts
+where numerical_meeting_id is not null
+
+union all
+
+select
+    'meeting_records' as source,
+    meeting_id,
+    numerical_meeting_id,
+    subject,
+    created_at
+from meeting_records
+where numerical_meeting_id is not null
+order by created_at desc;
+
