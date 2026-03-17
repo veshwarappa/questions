@@ -1,115 +1,95 @@
 select
-    meeting_id,
-    subject,
-    interviewee_email,
-    start_date,
-    start_time,
-    end_time,
-    meeting_date,
-    interview_date,
-    numerical_meeting_id,
-    contact_id,
-    candidate_id,
-    processed,
-    created_at,
-    transcript_available_at,
-    retry_count,
-    max_retries
+  meeting_id,
+  subject,
+  start_date,
+  start_time,
+  end_time,
+  meeting_date,
+  created_at,
+  processed
+from transcripts
+where lower(subject) like '%client meeting : kelly daly%'
+  and lower(subject) like '%st vincent de paul society%'
+  and (
+       coalesce(start_date,'') like '%2026-02-18%'
+    or coalesce(meeting_date,'') like '%2026-02-18%'
+    or coalesce(start_date,'') like '%18/02/2026%'
+    or coalesce(meeting_date,'') like '%18/02/2026%'
+    or coalesce(start_date,'') like '%18 feb%'
+    or coalesce(meeting_date,'') like '%18 feb%'
+    or coalesce(start_date,'') like '%february 18%'
+    or coalesce(meeting_date,'') like '%february 18%'
+  )
+order by created_at desc;
+
+select
+  meeting_id,
+  subject,
+  event_date,
+  start_time,
+  end_time,
+  created_at,
+  processing_state
+from meeting_records
+where lower(subject) like '%client meeting : kelly daly%'
+  and lower(subject) like '%st vincent de paul society%'
+  and (
+       coalesce(event_date,'') like '%2026-02-18%'
+    or coalesce(event_date,'') like '%18/02/2026%'
+    or coalesce(event_date,'') like '%18 feb%'
+    or coalesce(event_date,'') like '%february 18%'
+  )
+order by created_at desc;
+
+select
+  'transcripts' as src,
+  meeting_id,
+  subject,
+  start_date as event_date,
+  start_time,
+  end_time,
+  created_at
 from transcripts
 where lower(subject) like '%kelly daly%'
-   or lower(subject) like '%st vincent%'
-order by created_at desc;
+  and lower(subject) like '%vincent%'
+  and lower(subject) like '%paul%'
+  and (
+       coalesce(start_date,'') like '%2026-02-18%'
+    or coalesce(meeting_date,'') like '%2026-02-18%'
+    or coalesce(start_date,'') like '%18/02/2026%'
+    or coalesce(meeting_date,'') like '%18/02/2026%'
+  )
+
+union all
 
 select
-    meeting_id,
-    subject,
-    interviewee_email,
-    start_time,
-    end_time,
-    event_date,
-    numerical_meeting_id,
-    contact_id,
-    candidate_id,
-    processing_state,
-    created_at,
-    completed_at,
-    payload_submitted_at
+  'meeting_records' as src,
+  meeting_id,
+  subject,
+  event_date,
+  start_time,
+  end_time,
+  created_at
 from meeting_records
 where lower(subject) like '%kelly daly%'
-   or lower(subject) like '%st vincent%'
+  and lower(subject) like '%vincent%'
+  and lower(subject) like '%paul%'
+  and (
+       coalesce(event_date,'') like '%2026-02-18%'
+    or coalesce(event_date,'') like '%18/02/2026%'
+  )
 order by created_at desc;
 
 select
-    'transcripts' as source,
-    meeting_id,
-    subject,
-    interviewee_email,
-    created_at
+  meeting_id,
+  subject,
+  start_date,
+  start_time,
+  end_time,
+  created_at
 from transcripts
-where lower(interviewee_email) like '%rebecca%'
-
-union all
-
-select
-    'meeting_records' as source,
-    meeting_id,
-    subject,
-    interviewee_email,
-    created_at
-from meeting_records
-where lower(interviewee_email) like '%rebecca%'
+where lower(subject) like '%kelly daly%'
+  and lower(subject) like '%st vincent de paul society%'
+  and coalesce(start_time,'') like '%2:00%'
+  and coalesce(end_time,'') like '%3:00%'
 order by created_at desc;
-
-select
-    'transcripts' as source,
-    meeting_id,
-    subject,
-    start_date,
-    start_time,
-    end_time,
-    meeting_date,
-    created_at
-from transcripts
-where coalesce(start_date, '') like '%2026%'
-   or coalesce(meeting_date, '') like '%2026%'
-   or coalesce(start_time, '') like '%2:00%'
-   or coalesce(end_time, '') like '%3:00%'
-
-union all
-
-select
-    'meeting_records' as source,
-    meeting_id,
-    subject,
-    event_date as start_date,
-    start_time,
-    end_time,
-    event_date as meeting_date,
-    created_at
-from meeting_records
-where coalesce(event_date, '') like '%2026%'
-   or coalesce(start_time, '') like '%2:00%'
-   or coalesce(end_time, '') like '%3:00%'
-order by created_at desc;
-
-select
-    'transcripts' as source,
-    meeting_id,
-    numerical_meeting_id,
-    subject,
-    created_at
-from transcripts
-where numerical_meeting_id is not null
-
-union all
-
-select
-    'meeting_records' as source,
-    meeting_id,
-    numerical_meeting_id,
-    subject,
-    created_at
-from meeting_records
-where numerical_meeting_id is not null
-order by created_at desc;
-
