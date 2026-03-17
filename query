@@ -1,4 +1,49 @@
-On 02-03-2026, the Market Intelligence scheduler was functioning normally and multiple desk_research workflows completed successfully. 
-However, one workflow for desk 3c45e2b4-f385-4304-86b7-e9f9a7758257 failed. 
-The failure message in workflow_runs was Expecting value: line 12 column 9 (char 1828), which indicates a JSON parsing failure during processing. 
-Since the workflow failed before completing its downstream processing, the market insight report/email was not generated for that desk.
+select
+    meeting_id,
+    subject,
+    processed,
+    created_at,
+    transcript_available_at,
+    last_checked_at,
+    retry_count,
+    max_retries,
+    case
+        when transcript is null then 'NULL'
+        when length(trim(transcript)) = 0 then 'EMPTY'
+        else 'PRESENT'
+    end as transcript_status
+from transcripts
+where meeting_id = '<meeting_id>';
+
+select
+    meeting_id,
+    processing_state,
+    created_at,
+    completed_at,
+    payload_submitted_at,
+    case
+        when submitted_payload is null then 'NULL'
+        else 'PRESENT'
+    end as submitted_payload_status
+from meeting_records
+where meeting_id = '<meeting_id>';
+
+
+
+select
+    meeting_record_id,
+    step_name,
+    step_type,
+    status,
+    started_at,
+    completed_at,
+    duration_seconds,
+    model,
+    provider,
+    input_tokens,
+    output_tokens,
+    total_cost_usd,
+    step_metadata
+from pipeline_events
+where meeting_record_id = '<meeting_id>'
+order by started_at asc;
