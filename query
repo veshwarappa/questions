@@ -23,3 +23,6 @@ ContainerAppConsoleLogs_CL
 | extend numerical_meeting_id = extract(@"numerical[_-]?meeting[_-]?id[""=: ]+([A-Za-z0-9\-_/]+)", 1, Log_s)
 | project TimeGenerated, meeting_id, numerical_meeting_id, Log_s
 | order by TimeGenerated asc
+
+
+GET https://graph.microsoft.com/v1.0/users/{rebecca-email}/events?$filter=subject eq 'Client Meeting : Kelly Daly | ST VINCENT DE PAUL SOCIETY...'
