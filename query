@@ -1,95 +1,62 @@
 select
-  meeting_id,
-  subject,
-  start_date,
-  start_time,
-  end_time,
-  meeting_date,
-  created_at,
-  processed
-from transcripts
-where lower(subject) like '%client meeting : kelly daly%'
-  and lower(subject) like '%st vincent de paul society%'
-  and (
-       coalesce(start_date,'') like '%2026-02-18%'
-    or coalesce(meeting_date,'') like '%2026-02-18%'
-    or coalesce(start_date,'') like '%18/02/2026%'
-    or coalesce(meeting_date,'') like '%18/02/2026%'
-    or coalesce(start_date,'') like '%18 feb%'
-    or coalesce(meeting_date,'') like '%18 feb%'
-    or coalesce(start_date,'') like '%february 18%'
-    or coalesce(meeting_date,'') like '%february 18%'
-  )
-order by created_at desc;
+  occurred_at,
+  step_name,
+  error_type,
+  error_category,
+  error_code,
+  left(error_message, 300) as error_message,
+  meeting_record_id,
+  pipeline_event_id,
+  context
+from errors
+where occurred_at::date between '2026-02-17' and '2026-02-19'
+order by occurred_at desc;
 
 select
-  meeting_id,
-  subject,
-  event_date,
-  start_time,
-  end_time,
-  created_at,
-  processing_state
-from meeting_records
-where lower(subject) like '%client meeting : kelly daly%'
-  and lower(subject) like '%st vincent de paul society%'
-  and (
-       coalesce(event_date,'') like '%2026-02-18%'
-    or coalesce(event_date,'') like '%18/02/2026%'
-    or coalesce(event_date,'') like '%18 feb%'
-    or coalesce(event_date,'') like '%february 18%'
-  )
-order by created_at desc;
+  occurred_at,
+  step_name,
+  error_type,
+  error_category,
+  error_code,
+  left(error_message, 300) as error_message,
+  meeting_record_id,
+  context
+from errors
+where lower(coalesce(error_message,'')) like '%kelly%'
+   or lower(coalesce(error_message,'')) like '%st vincent%'
+   or lower(coalesce(context::text,'')) like '%kelly%'
+   or lower(coalesce(context::text,'')) like '%st vincent%'
+order by occurred_at desc;
 
 select
-  'transcripts' as src,
-  meeting_id,
-  subject,
-  start_date as event_date,
-  start_time,
-  end_time,
-  created_at
-from transcripts
-where lower(subject) like '%kelly daly%'
-  and lower(subject) like '%vincent%'
-  and lower(subject) like '%paul%'
-  and (
-       coalesce(start_date,'') like '%2026-02-18%'
-    or coalesce(meeting_date,'') like '%2026-02-18%'
-    or coalesce(start_date,'') like '%18/02/2026%'
-    or coalesce(meeting_date,'') like '%18/02/2026%'
-  )
+  occurred_at,
+  step_name,
+  error_type,
+  error_category,
+  error_code,
+  left(error_message, 300) as error_message,
+  meeting_record_id,
+  context
+from errors
+where lower(coalesce(step_name,'')) like '%transcript%'
+   or lower(coalesce(step_name,'')) like '%ingest%'
+   or lower(coalesce(step_name,'')) like '%sync%'
+   or lower(coalesce(step_name,'')) like '%fetch%'
+   or lower(coalesce(error_message,'')) like '%transcript%'
+   or lower(coalesce(error_message,'')) like '%onedrive%'
+   or lower(coalesce(error_message,'')) like '%teams%'
+   or lower(coalesce(error_message,'')) like '%graph%'
+order by occurred_at desc;
 
-union all
-
-select
-  'meeting_records' as src,
-  meeting_id,
-  subject,
-  event_date,
-  start_time,
-  end_time,
-  created_at
-from meeting_records
-where lower(subject) like '%kelly daly%'
-  and lower(subject) like '%vincent%'
-  and lower(subject) like '%paul%'
-  and (
-       coalesce(event_date,'') like '%2026-02-18%'
-    or coalesce(event_date,'') like '%18/02/2026%'
-  )
-order by created_at desc;
 
 select
-  meeting_id,
-  subject,
-  start_date,
-  start_time,
-  end_time,
-  created_at
-from transcripts
-where lower(subject) like '%kelly daly%'
-  and lower(subject) like '%st vincent de paul society%'
-  and coalesce(start_time,'') like '%2:00%'
-  and coalesce(end_time,'') like '%3:00%'
-order by created_at desc;
+  occurred_at,
+  step_name,
+  error_code,
+  left(error_message, 300) as error_message,
+  context
+from errors
+where lower(coalesce(context::text,'')) like '%rebecca homewood%'
+   or lower(coalesce(context::text,'')) like '%kelly daly%'
+   or lower(coalesce(context::text,'')) like '%st vincent de paul%'
+order by occurred_at desc;
