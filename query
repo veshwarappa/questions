@@ -24,5 +24,6 @@ ContainerAppConsoleLogs_CL
 | project TimeGenerated, meeting_id, numerical_meeting_id, Log_s
 | order by TimeGenerated asc
 
+GET https://graph.microsoft.com/v1.0/users/Rebecca.Homewood@hays.com.au/events?$select=id,subject,start,end,isOnlineMeeting,onlineMeeting&$filter=contains(subject,'ST VINCENT DE PAUL') and start/dateTime ge '2026-02-18T00:00:00' and start/dateTime lt '2026-02-19T00:00:00'
 
-GET https://graph.microsoft.com/v1.0/users/{rebecca-email}/events?$filter=subject eq 'Client Meeting : Kelly Daly | ST VINCENT DE PAUL SOCIETY...'
+GET https://graph.microsoft.com/v1.0/users/Rebecca.Homewood@hays.com.au/events?$select=id,subject,start,end,isOnlineMeeting,onlineMeeting,onlineMeetingProvider&$filter=start/dateTime ge '2026-02-18T00:00:00' and start/dateTime lt '2026-02-19T00:00:00'
