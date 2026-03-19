@@ -5,41 +5,31 @@ WHERE lower(owner_name) LIKE '%sonia%'
    OR lower(owner_name) LIKE '%feddersen%';
 
 ContainerAppConsoleLogs_CL
-| where TimeGenerated between (datetime(2026-03-02 00:00:00) .. datetime(2026-03-03 00:00:00))
+| where TimeGenerated between (datetime(2026-03-15 14:55:00) .. datetime(2026-03-15 15:20:00))
 | where Log_s contains "f66c1d4d-b3a8-4660-b147-cda58f43fc0b"
-    or Log_s contains "1feea30b-5141-4767-a7ee-4ae4c1498fc5"
-    or Log_s contains "Sonia.Diestel-Feddersen@hays.com.au"
-| project TimeGenerated, ContainerAppName_s, RevisionName_s, Log_s
+| project TimeGenerated, Log_s
 | order by TimeGenerated asc
 
 ContainerAppConsoleLogs_CL
-| where TimeGenerated between (datetime(2026-03-02 02:15:00) .. datetime(2026-03-02 03:00:00))
-| where Log_s contains "f66c1d4d-b3a8-4660-b147-cda58f43fc0b"
-    or Log_s contains "1feea30b-5141-4767-a7ee-4ae4c1498fc5"
-    or Log_s contains "Sonia.Diestel-Feddersen@hays.com.au"
-| project TimeGenerated, ContainerAppName_s, RevisionName_s, Log_s
-| order by TimeGenerated asc
-
-ContainerAppConsoleLogs_CL
-| where TimeGenerated between (datetime(2026-03-02 02:15:00) .. datetime(2026-03-02 03:00:00))
+| where TimeGenerated between (datetime(2026-03-15 14:55:00) .. datetime(2026-03-15 15:20:00))
 | where Log_s contains "error"
-    or Log_s contains "failed"
-    or Log_s contains "exception"
-    or Log_s contains "traceback"
-    or Log_s contains "Expecting value"
-    or Log_s contains "JSONDecodeError"
-| project TimeGenerated, ContainerAppName_s, RevisionName_s, Log_s
+   or Log_s contains "failed"
+   or Log_s contains "exception"
+   or Log_s contains "traceback"
+   or Log_s contains "JSONDecodeError"
+   or Log_s contains "Expecting value"
+| project TimeGenerated, Log_s
 | order by TimeGenerated asc
 
-
-ContainerAppConsoleLogs_CL
-| where TimeGenerated between (datetime(2026-03-02 02:15:00) .. datetime(2026-03-02 03:00:00))
-| where Log_s contains "desk_research"
-    or Log_s contains "workflow"
-    or Log_s contains "run_id"
-    or Log_s contains "schedule"
-    or Log_s contains "weekly"
-| project TimeGenerated, ContainerAppName_s, RevisionName_s, Log_s
-| order by TimeGenerated asc
-
+SELECT
+    run_id,
+    desk_id,
+    status,
+    started_at,
+    completed_at,
+    error_message
+FROM workflow_runs
+WHERE desk_id = 'f66c1d4d-b3a8-4660-b147-cda58f43fc0b'
+  AND started_at >= '2026-02-23 00:00:00'
+ORDER BY started_at;
 
