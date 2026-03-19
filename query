@@ -1,29 +1,5 @@
-ContainerAppConsoleLogs_CL
-| where TimeGenerated between (datetime(2026-02-18 01:30:00) .. datetime(2026-02-18 06:30:00))
-| where Log_s contains_cs "Kelly Daly"
-   or Log_s contains_cs "ST VINCENT DE PAUL SOCIETY"
-   or Log_s contains_cs "Client Meeting"
-   or Log_s contains_cs "Rebecca Homewood"
-| project TimeGenerated, ContainerName_s, RevisionName_s, Log_s
-| order by TimeGenerated asc
-
-ContainerAppConsoleLogs_CL
-| where TimeGenerated between (datetime(2026-02-18 01:30:00) .. datetime(2026-02-18 06:30:00))
-| where Log_s contains "error"
-   or Log_s contains "failed"
-   or Log_s contains "exception"
-   or Log_s contains "retry"
-| project TimeGenerated, ContainerName_s, RevisionName_s, Log_s
-| order by TimeGenerated asc
-
-ContainerAppConsoleLogs_CL
-| where TimeGenerated between (datetime(2026-02-18 01:30:00) .. datetime(2026-02-18 06:30:00))
-| where Log_s contains "Kelly" or Log_s contains "Vincent" or Log_s contains "Rebecca"
-| extend meeting_id = extract(@"meeting[_-]?id[""=: ]+([A-Za-z0-9\-_/]+)", 1, Log_s)
-| extend numerical_meeting_id = extract(@"numerical[_-]?meeting[_-]?id[""=: ]+([A-Za-z0-9\-_/]+)", 1, Log_s)
-| project TimeGenerated, meeting_id, numerical_meeting_id, Log_s
-| order by TimeGenerated asc
-
-GET https://graph.microsoft.com/v1.0/users/Rebecca.Homewood@hays.com.au/events?$select=id,subject,start,end,isOnlineMeeting,onlineMeeting&$filter=contains(subject,'ST VINCENT DE PAUL') and start/dateTime ge '2026-02-18T00:00:00' and start/dateTime lt '2026-02-19T00:00:00'
-
-GET https://graph.microsoft.com/v1.0/users/Rebecca.Homewood@hays.com.au/events?$select=id,subject,start,end,isOnlineMeeting,onlineMeeting,onlineMeetingProvider&$filter=start/dateTime ge '2026-02-18T00:00:00' and start/dateTime lt '2026-02-19T00:00:00'
+SELECT is_active, desk_id, frequency, owner_name
+FROM desk_configurations
+WHERE lower(owner_name) LIKE '%sonia%'
+   OR lower(owner_name) LIKE '%diestel%'
+   OR lower(owner_name) LIKE '%feddersen%';
