@@ -14,3 +14,116 @@ SELECT *
 FROM desk_reports
 ORDER BY generated_at DESC
 LIMIT 20;
+
+ContainerAppConsoleLogs_CL
+| where TimeGenerated between (datetime(2026-02-23 00:00:00) .. now())
+| where ContainerAppName_s == "market-intelligence-cron"
+| where Log_s contains "44e3b39a-a46a-4970-b834-d3d72da9f276"
+   or Log_s contains "f66c1d4d-b3a8-4660-b147-cda58f43fc0b"
+| project TimeGenerated, ContainerAppName_s, Log_s
+| order by TimeGenerated asc
+
+ContainerAppConsoleLogs_CL
+| where TimeGenerated between (datetime(2026-02-23 00:00:00) .. now())
+| where ContainerAppName_s == "market-intelligence-cron"
+| where Log_s contains "44e3b39a-a46a-4970-b834-d3d72da9f276"
+   or Log_s contains "f66c1d4d-b3a8-4660-b147-cda58f43fc0b"
+| project TimeGenerated, ContainerAppName_s, Log_s
+| order by TimeGenerated asc
+
+ContainerAppConsoleLogs_CL
+| where TimeGenerated between (datetime(2026-02-23 00:00:00) .. now())
+| where ContainerAppName_s == "market-intelligence-backend"
+| where Log_s contains "44e3b39a-a46a-4970-b834-d3d72da9f276"
+   or Log_s contains "f66c1d4d-b3a8-4660-b147-cda58f43fc0b"
+| where Log_s contains "Queueing desk"
+   or Log_s contains "queued desk"
+   or Log_s contains "research"
+   or Log_s contains "report"
+   or Log_s contains "Sending email"
+   or Log_s contains "completed"
+   or Log_s contains "failed"
+| project TimeGenerated, Log_s
+| order by TimeGenerated asc
+
+
+SELECT
+    desk_id,
+    run_id,
+    status,
+    started_at,
+    completed_at,
+    error_message
+FROM workflow_runs
+WHERE desk_id IN (
+    '44e3b39a-a46a-4970-b834-d3d72da9f276',
+    'f66c1d4d-b3a8-4660-b147-cda58f43fc0b'
+)
+ORDER BY desk_id, started_at DESC;
+
+SELECT
+    desk_id,
+    report_id,
+    generated_at
+FROM desk_reports
+WHERE desk_id IN (
+    '44e3b39a-a46a-4970-b834-d3d72da9f276',
+    'f66c1d4d-b3a8-4660-b147-cda58f43fc0b'
+)
+ORDER BY desk_id, generated_at DESC;
+
+SELECT
+    desk_id,
+    name,
+    desk_owner,
+    frequency,
+    schedule_time,
+    is_active,
+    updated_at
+FROM desk_configurations
+WHERE desk_id IN (
+    '44e3b39a-a46a-4970-b834-d3d72da9f276',
+    'f66c1d4d-b3a8-4660-b147-cda58f43fc0b'
+)
+ORDER BY desk_id;
+
+SELECT
+    desk_id,
+    name,
+    segment,
+    country,
+    industry,
+    target_roles,
+    company_characteristics,
+    other_focus,
+    search_focus,
+    sources,
+    exclude_sources,
+    news_preferences
+FROM desk_configurations
+WHERE desk_id IN (
+    '44e3b39a-a46a-4970-b834-d3d72da9f276',
+    'f66c1d4d-b3d72da9f276',
+    'f66c1d4d-b3a8-4660-b147-cda58f43fc0b'
+);
+
+SELECT
+    desk_id,
+    name,
+    segment,
+    country,
+    industry,
+    target_roles,
+    company_characteristics,
+    other_focus,
+    search_focus,
+    sources,
+    exclude_sources,
+    news_preferences
+FROM desk_configurations
+WHERE desk_id IN (
+    '44e3b39a-a46a-4970-b834-d3d72da9f276',
+    'f66c1d4d-b3a8-4660-b147-cda58f43fc0b'
+);
+
+
