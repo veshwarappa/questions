@@ -6,7 +6,7 @@ WHERE lower(owner_name) LIKE '%sonia%'
 
 SELECT
     dc.desk_id,
-    dc.desk_name,
+    dc.name,
     dc.desk_owner,
     dc.is_active,
     dc.frequency,
@@ -15,43 +15,47 @@ FROM desk_configurations dc
 LEFT JOIN desk_reports dr
     ON dc.desk_id = dr.desk_id
 WHERE dc.is_active = true
-GROUP BY dc.desk_id, dc.desk_name, dc.desk_owner, dc.is_active, dc.frequency
+GROUP BY dc.desk_id, dc.name, dc.desk_owner, dc.is_active, dc.frequency
 HAVING max(dr.generated_at) IS NULL
-    OR max(dr.generated_at) < '2026-02-23 00:00:00'
-ORDER BY last_report_generated_at NULLS FIRST;
+    OR max(dr.generated_at) < '2026-02-23 00:00:00+00'
+ORDER BY last_report_generated_at NULLS FIRST, dc.name;
 
 SELECT
     dc.desk_id,
-    dc.desk_name,
-    max(wr.started_at) AS last_workflow_started_at,
-    max(wr.completed_at) AS last_workflow_completed_at,
-    max(CASE WHEN wr.status = 'completed' THEN wr.started_at END) AS last_completed_workflow_at,
-    max(CASE WHEN wr.status = 'failed' THEN wr.started_at END) AS last_failed_workflow_at
-FROM desk_configurations dc
-LEFT JOIN workflow_runs wr
-    ON dc.desk_id = wr.desk_id
-WHERE dc.is_active = true
-GROUP BY dc.desk_id, dc.desk_name
-ORDER BY last_workflow_started_at NULLS FIRST;
-
-SELECT
-    dc.desk_id,
-    dc.desk_name,
+    dc.name,
     dc.desk_owner,
-    dc.frequency
+    dc.frequency,
+    dc.is_active
 FROM desk_configurations dc
 WHERE dc.is_active = true
 AND NOT EXISTS (
     SELECT 1
     FROM workflow_runs wr
     WHERE wr.desk_id = dc.desk_id
-      AND wr.started_at >= '2026-02-23 00:00:00'
+      AND wr.started_at >= '2026-02-23 00:00:00+00'
 )
-ORDER BY dc.desk_name;
+ORDER BY dc.name;
+
+
+SELECT
+    wr.desk_id,
+    dc.name,
+    dc.desk_owner,
+    count(*) AS failed_run_count,
+    min(wr.started_at) AS first_failed_at,
+    max(wr.started_at) AS last_failed_at,
+    max(wr.error_message) AS sample_error
+FROM workflow_runs wr
+LEFT JOIN desk_configurations dc
+    ON wr.desk_id = dc.desk_id
+WHERE wr.started_at >= '2026-02-23 00:00:00+00'
+  AND wr.status = 'failed'
+GROUP BY wr.desk_id, dc.name, dc.desk_owner
+ORDER BY failed_run_count DESC, last_failed_at DESC;
 
 SELECT
     dc.desk_id,
-    dc.desk_name,
+    dc.name,
     dc.desk_owner,
     max(wr.started_at) AS last_workflow_at,
     max(dr.generated_at) AS last_report_at
@@ -61,34 +65,26 @@ LEFT JOIN workflow_runs wr
 LEFT JOIN desk_reports dr
     ON dc.desk_id = dr.desk_id
 WHERE dc.is_active = true
-GROUP BY dc.desk_id, dc.desk_name, dc.desk_owner
-HAVING max(wr.started_at) >= '2026-02-23 00:00:00'
-   AND (max(dr.generated_at) IS NULL OR max(dr.generated_at) < max(wr.started_at))
-ORDER BY last_workflow_at DESC;
+GROUP BY dc.desk_id, dc.name, dc.desk_owner
+HAVING max(wr.started_at) >= '2026-02-23 00:00:00+00'
+   AND (
+       max(dr.generated_at) IS NULL
+       OR max(dr.generated_at) < '2026-02-23 00:00:00+00'
+   )
+ORDER BY last_workflow_at DESC NULLS LAST, dc.name;
 
 SELECT
-    frequency,
-    count(*) AS desk_count
-FROM desk_configurations
-WHERE desk_id IN (
-    SELECT dc.desk_id
-    FROM desk_configurations dc
-    WHERE dc.is_active = true
-    AND NOT EXISTS (
-        SELECT 1
-        FROM workflow_runs wr
-        WHERE wr.desk_id = dc.desk_id
-          AND wr.started_at >= '2026-02-23 00:00:00'
-    )
-)
-GROUP BY frequency
-ORDER BY desk_count DESC;
-
-ContainerAppConsoleLogs_CL
-| where TimeGenerated between (datetime(2026-03-15 14:50:00) .. datetime(2026-03-15 15:30:00))
-| where ContainerAppName_s == "market-intelligence-backend"
-| where Log_s contains "f66c1d4d-b3a8-4660-b147-cda58f43fc0b"
-| project TimeGenerated, RevisionName_s, ReplicaName_s, Log_s
-| order by TimeGenerated asc
-
-
+    dc.desk_id,
+    dc.name,
+    dc.desk_owner,
+    dc.frequency,
+    max(wr.started_at) AS last_workflow_at,
+    max(dr.generated_at) AS last_report_at
+FROM desk_configurations dc
+LEFT JOIN workflow_runs wr
+    ON dc.desk_id = wr.desk_id
+LEFT JOIN desk_reports dr
+    ON dc.desk_id = dr.desk_id
+WHERE dc.is_active = true
+GROUP BY dc.desk_id, dc.name, dc.desk_owner, dc.frequency
+ORDER BY last_report_at NULLS FIRST, last_workflow_at NULLS FIRST, dc.name;
