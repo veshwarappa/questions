@@ -1,28 +1,22 @@
-select *
-from app_users
-where lower(full_name) like '%jasmin ee%';
-
-select *
-from app_users
-where lower(full_name) like '%jasmin%'
-   or lower(email) like '%jasmin%';
-
-select *
-from meeting_records
-where lower(interviewee_email) = lower('<jasmin_email>')
-  and created_at::date = '2026-03-19'
-order by created_at desc;
-
 select meeting_id,
-       processing_state,
-       interviewee_email,
        subject,
+       interviewee_email,
+       processed,
        created_at,
-       completed_at,
-       payload_submitted_at,
-       processing_duration_seconds
-from meeting_records
-where created_at::date = '2026-03-19'
-  and lower(interviewee_email) like '%jasmin%'
-order by created_at desc;
+       last_checked_at,
+       retry_count,
+       transcript_available_at,
+       max_retries
+from transcripts
+where meeting_id = 'AAMkADRkYmRkMWI2LWIxNTgtNGYyZ105OTUyLTI0YzA2NmVjODkwMwBGAAAAAABa1JyN086eQ6w74hu3abwdBwDsvt7FT2AwRJhN0Bmde0NUAAAAAAENAADsvt7FT2AwRJhN0Bmde0NUAAR8_wV4AAA=';
 
+select meeting_record_id,
+       error_type,
+       error_category,
+       error_code,
+       step_name,
+       error_message,
+       occurred_at
+from errors
+where meeting_record_id = 'AAMkADRkYmRkMWI2LWIxNTgtNGYyZ105OTUyLTI0YzA2NmVjODkwMwBGAAAAAABa1JyN086eQ6w74hu3abwdBwDsvt7FT2AwRJhN0Bmde0NUAAAAAAENAADsvt7FT2AwRJhN0Bmde0NUAAR8_wV4AAA='
+order by occurred_at desc;
