@@ -1,22 +1,22 @@
-select meeting_id,
-       subject,
-       interviewee_email,
-       processed,
-       created_at,
-       last_checked_at,
-       retry_count,
-       transcript_available_at,
-       max_retries
-from transcripts
-where meeting_id = 'AAMkADRkYmRkMWI2LWIxNTgtNGYyZ105OTUyLTI0YzA2NmVjODkwMwBGAAAAAABa1JyN086eQ6w74hu3abwdBwDsvt7FT2AwRJhN0Bmde0NUAAAAAAENAADsvt7FT2AwRJhN0Bmde0NUAAR8_wV4AAA=';
+SELECT meeting_id, processing_state, created_at, completed_at
+FROM meeting_records
+WHERE subject ILIKE '%Gregory O''Brien%'
+ORDER BY created_at DESC;
 
-select meeting_record_id,
-       error_type,
-       error_category,
-       error_code,
-       step_name,
-       error_message,
-       occurred_at
-from errors
-where meeting_record_id = 'AAMkADRkYmRkMWI2LWIxNTgtNGYyZ105OTUyLTI0YzA2NmVjODkwMwBGAAAAAABa1JyN086eQ6w74hu3abwdBwDsvt7FT2AwRJhN0Bmde0NUAAAAAAENAADsvt7FT2AwRJhN0Bmde0NUAAR8_wV4AAA='
-order by occurred_at desc;
+SELECT *
+FROM transcripts
+WHERE meeting_id = '<MEETING_ID>';
+
+SELECT step_name, status, started_at, completed_at
+FROM pipeline_events
+WHERE meeting_record_id = '<MEETING_ID>'
+ORDER BY started_at;
+
+SELECT retry_count, max_retries, last_checked_at
+FROM transcripts
+WHERE meeting_id = '<MEETING_ID>';
+
+SELECT *
+FROM errors
+WHERE meeting_id = '<MEETING_ID>'
+ORDER BY created_at DESC;
