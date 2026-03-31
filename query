@@ -1,22 +1,5 @@
-SELECT meeting_id, processing_state, created_at, completed_at
-FROM meeting_records
-WHERE subject ILIKE '%Gregory O''Brien%'
-ORDER BY created_at DESC;
-
-SELECT *
-FROM transcripts
-WHERE meeting_id = '<MEETING_ID>';
-
-SELECT step_name, status, started_at, completed_at
-FROM pipeline_events
-WHERE meeting_record_id = '<MEETING_ID>'
-ORDER BY started_at;
-
-SELECT retry_count, max_retries, last_checked_at
-FROM transcripts
-WHERE meeting_id = '<MEETING_ID>';
-
-SELECT *
-FROM errors
-WHERE meeting_id = '<MEETING_ID>'
-ORDER BY created_at DESC;
+SELECT meeting_id, start_time, subject
+FROM public.meeting_records
+WHERE start_time::timestamp BETWEEN '2026-03-11 10:00:00' 
+                                 AND '2026-03-11 10:10:00'
+AND subject ILIKE '%Interview%'
