@@ -1,15 +1,14 @@
-SELECT *
+SELECT meeting_id, subject, meeting_date, start_time, end_time, interviewee_email, processed, created_at
 FROM public.transcripts
 WHERE interviewee_email = 'kate.angel@wqphn.com.au'
 ORDER BY created_at DESC;
 
-
-SELECT *
+SELECT meeting_id, subject, meeting_date, start_time, end_time, interviewee_email, processed, created_at
 FROM public.transcripts
 WHERE interviewee_email = 'kate.angel@wqphn.com.au'
-AND meeting_date LIKE '%2026-03-30%';
+ORDER BY created_at DESC;
 
-SELECT meeting_id, processed, transcript_available_at, retry_count
+SELECT meeting_id, subject, meeting_date, start_time, end_time, interviewee_email, processed, created_at
 FROM public.transcripts
-WHERE interviewee_email = 'kate.angel@wqphn.com.au'
+WHERE subject ILIKE '%Kate Angel%'
 ORDER BY created_at DESC;
