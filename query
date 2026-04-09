@@ -1,9 +1,50 @@
--- 1: find meeting
-SELECT meeting_id, subject, event_date
+SELECT meeting_id, subject, event_date, start_time, end_time, created_at
 FROM public.meeting_records
-WHERE subject ILIKE '%Kate Angel%';
+ORDER BY created_at DESC
+LIMIT 50;
 
-SELECT meeting_id, subject, event_date, start_time, end_time, attendees
+SELECT meeting_id, subject, meeting_date, start_time, end_time, interviewee_email, created_at
+FROM public.transcripts
+ORDER BY created_at DESC
+LIMIT 50;
+
+SELECT meeting_id, subject, event_date, start_time, end_time, created_at
 FROM public.meeting_records
-WHERE event_date LIKE '%2026-03-30%'
+WHERE subject ILIKE '%Kate%'
+   OR subject ILIKE '%Angel%'
+   OR subject ILIKE '%Western Queensland%'
+   OR subject ILIKE '%Primary Health%'
 ORDER BY created_at DESC;
+
+SELECT meeting_id, subject, meeting_date, start_time, end_time, created_at
+FROM public.transcripts
+WHERE subject ILIKE '%Kate%'
+   OR subject ILIKE '%Angel%'
+   OR subject ILIKE '%Western Queensland%'
+   OR subject ILIKE '%Primary Health%'
+ORDER BY created_at DESC;
+
+SELECT meeting_id, subject, event_date, attendees
+FROM public.meeting_records
+WHERE attendees::text ILIKE '%kate.angel%'
+   OR attendees::text ILIKE '%Kate Angel%'
+   OR attendees::text ILIKE '%krystal%'
+   OR attendees::text ILIKE '%Krystal Smith%'
+ORDER BY created_at DESC;
+
+SELECT meeting_id, subject, meeting_date, attendees
+FROM public.transcripts
+WHERE attendees::text ILIKE '%kate.angel%'
+   OR attendees::text ILIKE '%Kate Angel%'
+   OR attendees::text ILIKE '%krystal%'
+   OR attendees::text ILIKE '%Krystal Smith%'
+ORDER BY created_at DESC;
+
+SELECT meeting_id, subject, event_date, submitted_payload
+FROM public.meeting_records
+WHERE submitted_payload::text ILIKE '%kate.angel%'
+   OR submitted_payload::text ILIKE '%Kate Angel%'
+   OR submitted_payload::text ILIKE '%Krystal Smith%'
+   OR submitted_payload::text ILIKE '%Western Queensland%'
+ORDER BY created_at DESC;
+
